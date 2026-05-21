@@ -1,7 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import AttendanceChart from "@/components/reports/AttendanceChart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 
 interface AttendanceTrendChartProps {
@@ -9,7 +21,10 @@ interface AttendanceTrendChartProps {
   isLoading?: boolean;
 }
 
-export default function AttendanceTrendChart({ data, isLoading }: AttendanceTrendChartProps) {
+export default function AttendanceTrendChart({
+  data,
+  isLoading,
+}: AttendanceTrendChartProps) {
   const [timeRange, setTimeRange] = useState("7days");
 
   // In a real app, changing the time range would trigger a refetch or filter the data
@@ -20,10 +35,15 @@ export default function AttendanceTrendChart({ data, isLoading }: AttendanceTren
       <CardHeader className="flex flex-row items-center justify-between pb-2 border-b">
         <div>
           <CardTitle className="text-lg">Tren Kehadiran</CardTitle>
-          <CardDescription>Persentase kehadiran berdasarkan waktu</CardDescription>
+          <CardDescription>
+            Persentase kehadiran berdasarkan waktu
+          </CardDescription>
         </div>
-        <Select value={timeRange} onValueChange={(val) => setTimeRange(val || "7days")}>
-          <SelectTrigger className="w-[130px] h-8 text-xs">
+        <Select
+          value={timeRange}
+          onValueChange={(val) => setTimeRange(val || "7days")}
+        >
+          <SelectTrigger className="w-32.5 h-8 text-xs">
             <SelectValue placeholder="Pilih Waktu" />
           </SelectTrigger>
           <SelectContent>
@@ -35,15 +55,15 @@ export default function AttendanceTrendChart({ data, isLoading }: AttendanceTren
       </CardHeader>
       <CardContent className="pt-6">
         {isLoading ? (
-          <div className="w-full h-[300px] flex items-center justify-center">
-            <Skeleton className="w-full h-[250px] rounded-lg" />
+          <div className="w-full h-75 flex items-center justify-center">
+            <Skeleton className="w-full h-62.5 rounded-lg" />
           </div>
         ) : (
-          <AttendanceChart 
-            data={data || []} 
-            type="line" 
-            xAxisKey="date" 
-            height={300} 
+          <AttendanceChart
+            data={data || []}
+            type="line"
+            xAxisKey="date"
+            height={300}
           />
         )}
       </CardContent>
