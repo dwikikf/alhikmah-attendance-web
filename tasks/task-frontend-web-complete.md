@@ -151,27 +151,27 @@
 
 ## Tasks
 
-- [ ] 0.0 Create Feature Branch
-  - [ ] 0.1 Checkout feature branch baru: `git checkout -b feature/frontend-web-complete`
-  - [ ] 0.2 Push branch ke repository: `git push -u origin feature/frontend-web-complete`
+- [x] 0.0 Create Feature Branch
+  - [x] 0.1 Checkout feature branch baru: `git checkout -b feature/frontend-web-complete`
+  - [] 0.2 Push branch ke repository: `git push -u origin feature/frontend-web-complete`
 
 - [ ] 1.0 Project Setup & Dependencies Installation
-  - [ ] 1.1 Inisialisasi project Vite dengan React + TypeScript menggunakan Bun
-  - [ ] 1.2 Install core dependencies: react, react-dom, react-router-dom, typescript
-  - [ ] 1.3 Install state management: @tanstack/react-query
-  - [ ] 1.4 Install HTTP client: axios
-  - [ ] 1.5 Install UI & styling: tailwindcss, postcss, autoprefixer
-  - [ ] 1.6 Setup shadcn/ui components dengan `npx shadcn-ui@latest init`
-  - [ ] 1.7 Install QR code libraries: html5-qrcode, qrcode.react
-  - [ ] 1.8 Install charting library: recharts
-  - [ ] 1.9 Install export libraries: jspdf, xlsx, papaparse
-  - [ ] 1.10 Install date utilities: date-fns
-  - [ ] 1.11 Install form validation: zod, react-hook-form, @hookform/resolvers
-  - [ ] 1.12 Install additional utilities: jwt-decode, clsx, tailwind-merge
-  - [ ] 1.13 Configure TypeScript dengan strict mode & path aliases di tsconfig.json
-  - [ ] 1.14 Setup Tailwind CSS configuration dengan shadcn/ui theme
-  - [ ] 1.15 Konfigurasi Vite untuk asset optimization & environment variables di vite.config.ts
-  - [ ] 1.16 Setup bun.lock untuk dependency locking
+  - [x] 1.1 Inisialisasi project Vite dengan React + TypeScript menggunakan Bun
+  - [x] 1.2 Install core dependencies: react, react-dom, react-router-dom, typescript
+  - [x] 1.3 Install state management: @tanstack/react-query
+  - [x] 1.4 Install HTTP client: axios
+  - [x] 1.5 Install UI & styling: tailwindcss, postcss, autoprefixer
+  - [x] 1.6 Setup shadcn/ui components dengan components.json dan lib/utils.ts
+  - [x] 1.7 Install QR code libraries: html5-qrcode, qrcode.react
+  - [x] 1.8 Install charting library: recharts
+  - [x] 1.9 Install export libraries: jspdf, xlsx, papaparse
+  - [x] 1.10 Install date utilities: date-fns
+  - [x] 1.11 Install form validation: zod, react-hook-form, @hookform/resolvers
+  - [x] 1.12 Install additional utilities: jwt-decode, clsx, tailwind-merge, @tailwindcss/postcss, terser
+  - [x] 1.13 Configure TypeScript dengan strict mode & path aliases di tsconfig.json
+  - [x] 1.14 Setup Tailwind CSS configuration dengan @tailwindcss/postcss dan components.json setup
+  - [x] 1.15 Konfigurasi Vite untuk asset optimization & environment variables di vite.config.ts
+  - [x] 1.16 Verify project build (bun run build) dan dev server (bun run dev) berjalan lancar
 
 - [ ] 2.0 Authentication System Implementation
   - [ ] 2.1 Buat type definitions untuk auth di src/types/auth.ts (User, AuthToken, LoginRequest, etc)
