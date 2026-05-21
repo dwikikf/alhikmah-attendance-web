@@ -173,37 +173,37 @@
   - [x] 1.15 Konfigurasi Vite untuk asset optimization & environment variables di vite.config.ts
   - [x] 1.16 Verify project build (bun run build) dan dev server (bun run dev) berjalan lancar
 
-- [ ] 2.0 Authentication System Implementation
-  - [ ] 2.1 Buat type definitions untuk auth di src/types/auth.ts (User, AuthToken, LoginRequest, etc)
-  - [ ] 2.2 Setup Axios instance dengan interceptor untuk JWT token di src/utils/api.ts
-  - [ ] 2.3 Buat auth utility functions di src/utils/auth.ts (setToken, getToken, removeToken, decodeToken, isTokenExpired)
-  - [ ] 2.4 Setup Auth Context untuk global auth state di src/contexts/AuthContext.tsx
-  - [ ] 2.5 Buat custom hook useAuth() di src/hooks/useAuth.ts untuk mudah akses auth context
-  - [ ] 2.6 Buat authService.ts dengan login, logout, refreshToken, getCurrentUser methods
-  - [ ] 2.7 Implementasi LoginForm component dengan email/password fields dan form validation
-  - [ ] 2.8 Buat RoleGuard component untuk role-based access control
-  - [ ] 2.9 Setup PrivateRoute wrapper untuk protected routes
-  - [ ] 2.10 Implementasi auto logout ketika token expired
-  - [ ] 2.11 Buat PasswordResetForm component dengan email verification
-  - [ ] 2.12 Setup refresh token mechanism dengan automatic refresh sebelum expire
-  - [ ] 2.13 Implementasi "Remember Me" functionality dengan localStorage
-  - [ ] 2.14 Setup error interceptor untuk handle 401 responses
+- [x] 2.0 Authentication System Implementation
+  - [x] 2.1 Buat type definitions untuk auth di src/types/auth.ts (User, AuthToken, LoginRequest, etc)
+  - [x] 2.2 Setup Axios instance dengan interceptor untuk JWT token di src/utils/api.ts
+  - [x] 2.3 Buat auth utility functions di src/utils/auth.ts (setToken, getToken, removeToken, decodeToken, isTokenExpired)
+  - [x] 2.4 Setup Auth Context untuk global auth state di src/contexts/AuthContext.tsx
+  - [x] 2.5 Buat custom hook useAuth() di src/hooks/useAuth.ts untuk mudah akses auth context
+  - [x] 2.6 Buat authService.ts dengan login, logout, refreshToken, getCurrentUser methods
+  - [x] 2.7 Implementasi LoginForm component dengan email/password fields dan form validation
+  - [x] 2.8 Buat RoleGuard component untuk role-based access control
+  - [x] 2.9 Setup PrivateRoute wrapper untuk protected routes
+  - [x] 2.10 Implementasi auto logout ketika token expired
+  - [x] 2.11 Buat PasswordResetForm component dengan email verification
+  - [x] 2.12 Setup refresh token mechanism dengan automatic refresh sebelum expire
+  - [x] 2.13 Implementasi "Remember Me" functionality dengan localStorage
+  - [x] 2.14 Setup error interceptor untuk handle 401 responses
 
-- [ ] 3.0 UI Foundation & Navigation System
-  - [ ] 3.1 Setup Tailwind CSS configuration dengan custom colors dan theme di tailwind.config.ts
-  - [ ] 3.2 Buat global styles di src/styles/globals.css dengan Tailwind directives
-  - [ ] 3.3 Implementasi Navigation header component dengan logo, user menu, logout
-  - [ ] 3.4 Buat Sidebar navigation dengan menu items berdasarkan role (guru vs admin)
-  - [ ] 3.5 Setup routing structure dengan React Router v6 di src/App.tsx
-  - [ ] 3.6 Buat AuthLayout untuk halaman login/register/password reset
-  - [ ] 3.7 Buat MainLayout dengan sidebar + header + main content area
-  - [ ] 3.8 Implementasi responsive layout (mobile, tablet, desktop) menggunakan Tailwind breakpoints
-  - [ ] 3.9 Buat BreadcrumbNav component untuk page navigation tracking
-  - [ ] 3.10 Implementasi active menu item highlighting
-  - [ ] 3.11 Setup NotFound (404) dan Unauthorized (403) pages
-  - [ ] 3.12 Buat mobile hamburger menu untuk sidebar pada layar kecil
-  - [ ] 3.13 Implementasi smooth transitions untuk sidebar collapse/expand
-  - [ ] 3.14 Setup route structure dengan public dan protected routes
+- [x] 3.0 UI Foundation & Navigation System
+  - [x] 3.1 Setup Tailwind CSS configuration dengan custom colors dan theme di tailwind.config.ts
+  - [x] 3.2 Buat global styles di src/styles/globals.css dengan Tailwind directives
+  - [x] 3.3 Implementasi Navigation header component dengan logo, user menu, logout
+  - [x] 3.4 Buat Sidebar navigation dengan menu items berdasarkan role (guru vs admin)
+  - [x] 3.5 Setup routing structure dengan React Router v6 di src/App.tsx
+  - [x] 3.6 Buat AuthLayout untuk halaman login/register/password reset
+  - [x] 3.7 Buat MainLayout dengan sidebar + header + main content area
+  - [x] 3.8 Implementasi responsive layout (mobile, tablet, desktop) menggunakan Tailwind breakpoints
+  - [x] 3.9 Buat BreadcrumbNav component untuk page navigation tracking
+  - [x] 3.10 Implementasi active menu item highlighting
+  - [x] 3.11 Setup NotFound (404) dan Unauthorized (403) pages
+  - [x] 3.12 Buat mobile hamburger menu untuk sidebar pada layar kecil
+  - [x] 3.13 Implementasi smooth transitions untuk sidebar collapse/expand
+  - [x] 3.14 Setup route structure dengan public dan protected routes
 
 - [ ] 4.0 QR Code Management System
   - [ ] 4.1 Setup html5-qrcode library di src/utils/qrcode.ts dengan QR decoder logic
