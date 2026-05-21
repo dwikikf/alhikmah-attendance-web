@@ -1,6 +1,12 @@
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,7 +18,10 @@ interface RecentActivityProps {
   isLoading?: boolean;
 }
 
-export default function RecentActivity({ records, isLoading }: RecentActivityProps) {
+export default function RecentActivity({
+  records,
+  isLoading,
+}: RecentActivityProps) {
   return (
     <Card className="h-full">
       <CardHeader>
@@ -26,8 +35,8 @@ export default function RecentActivity({ records, isLoading }: RecentActivityPro
               <div key={i} className="flex items-center gap-4">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-[150px]" />
-                  <Skeleton className="h-3 w-[100px]" />
+                  <Skeleton className="h-4 w-37.5" />
+                  <Skeleton className="h-3 w-25" />
                 </div>
                 <Skeleton className="h-6 w-16" />
               </div>
@@ -38,10 +47,13 @@ export default function RecentActivity({ records, isLoading }: RecentActivityPro
             <p>Belum ada aktivitas hari ini</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-100 pr-4">
             <div className="space-y-6">
               {records.map((record) => (
-                <div key={record.id} className="flex items-start justify-between gap-4">
+                <div
+                  key={record.id}
+                  className="flex items-start justify-between gap-4"
+                >
                   <div className="flex items-start gap-4">
                     <div className="mt-1 bg-muted rounded-full p-2">
                       {record.is_manual ? (
@@ -51,12 +63,22 @@ export default function RecentActivity({ records, isLoading }: RecentActivityPro
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium leading-none">{record.student_name}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {record.student_name}
+                      </p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <p className="text-xs text-muted-foreground">Kelas {record.class_name}</p>
-                        <span className="text-[10px] text-muted-foreground">•</span>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(record.scanned_at || record.recorded_at), "HH:mm", { locale: idLocale })}
+                          Kelas {record.class_name}
+                        </p>
+                        <span className="text-[10px] text-muted-foreground">
+                          •
+                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          {format(
+                            new Date(record.scanned_at || record.recorded_at),
+                            "HH:mm",
+                            { locale: idLocale },
+                          )}
                         </p>
                       </div>
                     </div>

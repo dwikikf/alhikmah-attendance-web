@@ -23,12 +23,12 @@ export default function QRGenerator({
 
   const handleDownload = async () => {
     if (!qrRef.current) return;
-    
+
     setIsExporting(true);
     try {
       // Small delay to ensure rendering is complete
-      await new Promise(r => setTimeout(r, 100));
-      
+      await new Promise((r) => setTimeout(r, 100));
+
       const canvas = await html2canvas(qrRef.current, {
         scale: 4, // Higher resolution
         backgroundColor: "#ffffff",
@@ -38,9 +38,9 @@ export default function QRGenerator({
       const image = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.href = image;
-      link.download = `QR_${data.nisn}_${data.name.replace(/\s+/g, '_')}.png`;
+      link.download = `QR_${data.nisn}_${data.name.replace(/\s+/g, "_")}.png`;
       link.click();
-      
+
       toast.success("QR Code berhasil diunduh");
     } catch (error) {
       console.error("Failed to export QR Code", error);
@@ -53,7 +53,7 @@ export default function QRGenerator({
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Container that will be captured by html2canvas */}
-      <div 
+      <div
         ref={qrRef}
         className="bg-white p-6 rounded-2xl flex flex-col items-center shadow-sm border border-gray-100"
         style={{ width: size + 48 }}
@@ -67,7 +67,7 @@ export default function QRGenerator({
             fgColor="#022c22" // Dark emerald
           />
         </div>
-        
+
         {showDetails && (
           <div className="mt-4 text-center w-full">
             <h3 className="font-bold text-gray-900 truncate" title={data.name}>
@@ -83,11 +83,11 @@ export default function QRGenerator({
         )}
       </div>
 
-      <Button 
-        onClick={handleDownload} 
+      <Button
+        onClick={handleDownload}
         disabled={isExporting}
         variant="outline"
-        className="w-full max-w-[200px]"
+        className="w-full max-w-50"
       >
         <Download className="mr-2 h-4 w-4" />
         {isExporting ? "Mengunduh..." : "Unduh PNG"}
