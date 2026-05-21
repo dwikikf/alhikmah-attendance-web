@@ -37,15 +37,19 @@ export default function PrivateRoute({
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
+  // Bypass
+  const isDevBypass = import.meta.env?.VITE_BYPASS_AUTH === "true";
+  if (isDevBypass) {
+    return <Outlet />;
+  }
+
   // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600 dark:border-emerald-800 dark:border-t-emerald-400" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Memuat...
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Memuat...</p>
         </div>
       </div>
     );

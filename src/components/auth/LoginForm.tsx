@@ -58,7 +58,7 @@ export default function LoginForm({
     <div className={cn("w-full", className)}>
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
           <svg
             className="h-8 w-8 text-white"
             fill="none"
@@ -366,7 +366,7 @@ export default function LoginForm({
           disabled={loading}
           id="login-submit-btn"
           className={cn(
-            "relative w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-200",
+            "relative w-full rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-200",
             "hover:from-emerald-600 hover:to-teal-700 hover:shadow-xl hover:shadow-emerald-500/30",
             "focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900",
             "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-lg",

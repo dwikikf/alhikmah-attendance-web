@@ -52,7 +52,7 @@ export default function PasswordResetForm({
       <div className={cn("w-full", className)}>
         <div className="text-center">
           {/* Success icon */}
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
             <svg
               className="h-8 w-8 text-white"
               fill="none"
@@ -124,7 +124,7 @@ export default function PasswordResetForm({
     <div className={cn("w-full", className)}>
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25">
           <svg
             className="h-8 w-8 text-white"
             fill="none"
@@ -234,7 +234,7 @@ export default function PasswordResetForm({
           disabled={isSubmitting}
           id="reset-submit-btn"
           className={cn(
-            "relative w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 transition-all duration-200",
+            "relative w-full rounded-xl bg-linear-to-r from-amber-500 to-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 transition-all duration-200",
             "hover:from-amber-600 hover:to-orange-700 hover:shadow-xl hover:shadow-amber-500/30",
             "focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900",
             "disabled:cursor-not-allowed disabled:opacity-60",

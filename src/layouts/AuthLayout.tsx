@@ -25,7 +25,7 @@ export default function AuthLayout() {
       {/* Left decorative panel - hidden on mobile */}
       <div className="relative hidden w-1/2 overflow-hidden lg:block">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700" />
+        <div className="absolute inset-0 bg-linear-to-br from-emerald-600 via-teal-600 to-cyan-700" />
 
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10">
