@@ -1,17 +1,37 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 import PrivateRoute from "@/components/auth/PrivateRoute";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // Layouts
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
 
-// Pages
+// Eager-loaded pages (critical path)
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
-import NotFoundPage from "@/pages/NotFoundPage";
-import UnauthorizedPage from "@/pages/UnauthorizedPage";
+
+// Lazy-loaded pages (code splitting)
+const AttendanceScannerPage = lazy(() => import("@/pages/AttendanceScannerPage"));
+const StudentsPage = lazy(() => import("@/pages/StudentsPage"));
+const ClassesPage = lazy(() => import("@/pages/ClassesPage"));
+const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+const UnauthorizedPage = lazy(() => import("@/pages/UnauthorizedPage"));
+
+// Fallback for lazy loaded pages
+function PageLoader() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+    </div>
+  );
+}
 
 // Create query client instance with defaults
 const queryClient = new QueryClient({
@@ -29,36 +49,49 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes - Auth Layout */}
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
+    <ThemeProvider defaultTheme="system" storageKey="alhikmah-theme">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <BrowserRouter>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public Routes - Auth Layout */}
+                  <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                  </Route>
 
-            {/* Protected Routes - Main Layout */}
-            <Route element={<PrivateRoute />}>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<DashboardPage />} />
-                {/* Future pages will be added here:
-                <Route path="/attendance" element={<AttendancePage />} />
-                <Route path="/students" element={<StudentsPage />} />
-                <Route path="/classes" element={<ClassesPage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                */}
-              </Route>
-            </Route>
+                  {/* Protected Routes - Main Layout */}
+                  <Route element={<PrivateRoute />}>
+                    <Route element={<MainLayout />}>
+                      <Route path="/" element={<DashboardPage />} />
+                      <Route path="/attendance" element={<AttendanceScannerPage />} />
+                      
+                      <Route element={<PrivateRoute allowedRoles={['admin', 'teacher', 'principal']} />}>
+                        <Route path="/students" element={<StudentsPage />} />
+                        <Route path="/students/:id" element={<StudentsPage />} />
+                        <Route path="/reports" element={<ReportsPage />} />
+                      </Route>
 
-            {/* Error Routes */}
-            <Route path="/unauthorized" element={<UnauthorizedPage />} />
-            <Route path="/not-found" element={<NotFoundPage />} />
-            <Route path="*" element={<Navigate to="/not-found" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+                      <Route element={<PrivateRoute allowedRoles={['admin', 'principal']} />}>
+                        <Route path="/classes" element={<ClassesPage />} />
+                        <Route path="/classes/:id" element={<ClassesPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                      </Route>
+                    </Route>
+                  </Route>
+
+                  {/* Error Routes */}
+                  <Route path="/unauthorized" element={<UnauthorizedPage />} />
+                  <Route path="/not-found" element={<NotFoundPage />} />
+                  <Route path="*" element={<Navigate to="/not-found" replace />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+            <Toaster richColors position="top-right" />
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

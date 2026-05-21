@@ -1,64 +1,54 @@
-// MainLayout - Layout with sidebar + header + main content area
-
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Navigation from "@/components/common/Navigation";
-import Sidebar from "@/components/common/Sidebar";
+import { AppSidebar } from "@/components/common/Sidebar";
 import BreadcrumbNav from "@/components/common/BreadcrumbNav";
-import { cn } from "@/lib/utils";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export default function MainLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
-  // Close sidebar on window resize to desktop
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsSidebarOpen(false);
-      }
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close sidebar on route change (mobile)
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleToggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="bg-muted/30">
+        {/* Navigation Header */}
+        <Navigation />
 
-      {/* Navigation Header */}
-      <Navigation
-        onMenuToggle={handleToggleSidebar}
-        isSidebarOpen={isSidebarOpen}
-      />
+        {/* Main Content */}
+        <div id="main-content" className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
+          {/* Offline Banner */}
+          {isOffline && (
+            <div className="mb-4 rounded-md bg-amber-500 text-white text-xs font-medium py-2 px-4 text-center flex items-center justify-center gap-2 shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 2 20 20"/><path d="M8.53 8.53a9.23 9.23 0 0 1 11.23 2.11"/><path d="M12.92 12.92a4.97 4.97 0 0 1 3.51 1.08"/><path d="M4.66 4.66a9.23 9.23 0 0 0-.42 14.65"/><path d="M7.74 7.74a4.97 4.97 0 0 0-1.42 8.42"/><path d="M10.82 10.82a1 1 0 0 0-1.42 1.42"/></svg>
+              Anda sedang offline. Beberapa fitur mungkin tidak berfungsi.
+            </div>
+          )}
 
-      {/* Main Content */}
-      <main
-        className={cn(
-          "min-h-screen pt-[var(--header-height)] transition-all duration-300",
-          "lg:ml-[var(--sidebar-width)]",
-        )}
-        id="main-content"
-      >
-        <div className="p-4 md:p-6 lg:p-8">
           {/* Breadcrumb */}
-          <BreadcrumbNav />
+          <div className="mb-4">
+            <BreadcrumbNav />
+          </div>
 
           {/* Page content */}
-          <div className="page-enter">
+          <div className="flex-1 page-enter">
             <Outlet />
           </div>
         </div>
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
