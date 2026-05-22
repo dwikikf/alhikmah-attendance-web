@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
+import { useUsers } from "@/queries/useUserQuery";
 import type { Class, CreateClassDto, UpdateClassDto } from "@/types";
 
 const classSchema = z.object({
@@ -34,7 +36,10 @@ export default function ClassForm({ initialData, onSuccess, onCancel }: ClassFor
   const updateMutation = useUpdateClass();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ClassFormValues>({
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers({ role: "teacher", is_active: true });
+  const teachers = usersData?.data || [];
+
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ClassFormValues>({
     resolver: zodResolver(classSchema),
     defaultValues: {
       class_name: initialData?.class_name || "",
@@ -119,13 +124,22 @@ export default function ClassForm({ initialData, onSuccess, onCancel }: ClassFor
 
           <div className="space-y-2">
             <Label htmlFor="teacher_id">Wali Kelas</Label>
-            {/* Using text input for now, should ideally be a searchable dropdown of teachers */}
-            <Input 
-              id="teacher_id" 
-              {...register("teacher_id")} 
-              disabled={isPending} 
-              placeholder="ID / Nama Guru Wali Kelas"
-            />
+            <Select 
+              value={watch("teacher_id")} 
+              onValueChange={(val: any) => setValue("teacher_id", val)}
+              disabled={isPending || isLoadingUsers}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={isLoadingUsers ? "Memuat guru..." : "Pilih Wali Kelas"} />
+              </SelectTrigger>
+              <SelectContent>
+                {teachers.map(teacher => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {teacher.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.teacher_id && <p className="text-xs text-red-500">{errors.teacher_id.message}</p>}
           </div>
 

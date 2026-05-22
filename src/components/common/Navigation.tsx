@@ -40,12 +40,11 @@ export default function Navigation() {
         .slice(0, 2)
     : "?";
 
-  const roleLabel =
-    user?.role === "admin"
-      ? "Administrator"
-      : user?.role === "principal"
-        ? "Kepala Sekolah"
-        : "Guru";
+  const roleLabel = user?.role === "admin"
+    ? "Administrator"
+    : user?.role === "teacher"
+      ? "Guru Wali Kelas"
+      : "Pengguna";
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur-xl">

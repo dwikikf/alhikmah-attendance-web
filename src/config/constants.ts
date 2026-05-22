@@ -39,7 +39,6 @@ export const ATTENDANCE_STATUS = {
 export const USER_ROLES = {
   ADMIN: "admin",
   TEACHER: "teacher",
-  PRINCIPAL: "principal",
 } as const;
 
 export const HTTP_STATUS = {

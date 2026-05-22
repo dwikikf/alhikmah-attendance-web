@@ -83,6 +83,26 @@ export const useTotalClasses = () => {
  * We iterate over each class and call /reports/daily for each.
  * If class list is empty or reports fail, we gracefully return zeros.
  */
+export const useRecentActivity = (limit: number = 10) => {
+  return useQuery({
+    queryKey: ["dashboard", "recentActivity", limit],
+    queryFn: async () => {
+      const res = await api.get<{ success: boolean; data: any[] }>("/dashboard/recent-activity", { params: { limit } });
+      return res.data?.data || [];
+    },
+  });
+};
+
+export const useAttendanceTrend = (days: number = 7) => {
+  return useQuery({
+    queryKey: ["dashboard", "attendanceTrend", days],
+    queryFn: async () => {
+      const res = await api.get<{ success: boolean; data: any[] }>("/dashboard/attendance-trend", { params: { days } });
+      return res.data?.data || [];
+    },
+  });
+};
+
 export const useTodayAttendanceSummary = (
   classIds: string[],
   date: string,

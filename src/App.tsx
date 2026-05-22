@@ -20,6 +20,7 @@ const AttendanceScannerPage = lazy(() => import("@/pages/AttendanceScannerPage")
 const StudentsPage = lazy(() => import("@/pages/StudentsPage"));
 const ClassesPage = lazy(() => import("@/pages/ClassesPage"));
 const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
+const UsersPage = lazy(() => import("@/pages/UsersPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const UnauthorizedPage = lazy(() => import("@/pages/UnauthorizedPage"));
@@ -67,15 +68,16 @@ export default function App() {
                       <Route path="/" element={<DashboardPage />} />
                       <Route path="/attendance" element={<AttendanceScannerPage />} />
                       
-                      <Route element={<PrivateRoute allowedRoles={['admin', 'teacher', 'principal']} />}>
+                      <Route element={<PrivateRoute allowedRoles={['admin', 'teacher']} />}>
                         <Route path="/students" element={<StudentsPage />} />
                         <Route path="/students/:id" element={<StudentsPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                       </Route>
 
-                      <Route element={<PrivateRoute allowedRoles={['admin', 'principal']} />}>
+                      <Route element={<PrivateRoute allowedRoles={['admin']} />}>
                         <Route path="/classes" element={<ClassesPage />} />
                         <Route path="/classes/:id" element={<ClassesPage />} />
+                        <Route path="/users" element={<UsersPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                       </Route>
                     </Route>

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useSemesterReport } from "@/queries/useReportQuery";
+import { useClasses } from "@/queries/useClassQuery";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Select,
   SelectContent,
@@ -21,9 +23,17 @@ import AttendanceChart from "./AttendanceChart";
 import { cn } from "@/lib/utils";
 
 export default function SemesterReportView() {
-  const [classId, setClassId] = useState<string>("class-1");
+  const [classId, setClassId] = useState<string>("");
   const [semester, setSemester] = useState<"1" | "2">("1");
   const [academicYear, setAcademicYear] = useState<string>("2025/2026");
+
+  const { user } = useAuth();
+  const { data: classesData } = useClasses();
+  
+  const availableClasses = classesData?.data?.filter(c => {
+    if (user?.role === "admin") return true;
+    return c.teacher_id === user?.id;
+  }) || [];
 
   // Fetch report data
   const {
@@ -95,15 +105,15 @@ export default function SemesterReportView() {
 
         <Select
           value={classId}
-          onValueChange={(val) => setClassId(val || "class-1")}
+          onValueChange={(val) => setClassId(val || "")}
         >
           <SelectTrigger className="w-[150px] bg-background">
             <SelectValue placeholder="Pilih Kelas" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="class-1">Kelas 10A</SelectItem>
-            <SelectItem value="class-2">Kelas 10B</SelectItem>
-            <SelectItem value="class-3">Kelas 11A</SelectItem>
+            {availableClasses.map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.class_name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -203,7 +213,7 @@ export default function SemesterReportView() {
             <CardContent>
               <DataTable
                 columns={columns}
-                data={report.student_stats}
+                data={report.student_stats || []}
                 searchKey="student_name"
                 searchPlaceholder="Cari nama siswa..."
               />

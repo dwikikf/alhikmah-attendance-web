@@ -9,7 +9,11 @@ import {
   useTotalStudents,
   useTotalClasses,
   useTodayAttendanceSummary,
+  useRecentActivity,
+  useAttendanceTrend,
 } from "@/queries/useDashboardQuery";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -33,6 +37,11 @@ export default function DashboardPage() {
   const { data: attendanceTotals, isLoading: isLoadingAttendance } =
     useTodayAttendanceSummary(classIds, today);
 
+  // 4. Recent Activity and Trend
+  const [trendDays, setTrendDays] = useState<number>(7);
+  const { data: recentActivity, isLoading: isLoadingRecent } = useRecentActivity(10);
+  const { data: trendData, isLoading: isLoadingTrend } = useAttendanceTrend(trendDays);
+
   // ─── Calculate stats from real data ──────────────────────────────────────────
 
   const hadir = attendanceTotals?.hadir ?? 0;
@@ -47,21 +56,6 @@ export default function DashboardPage() {
 
   const isLoading = isLoadingStudents || isLoadingClasses || isLoadingAttendance;
 
-  // ─── Mock trend data (will be replaced when backend provides trend endpoint) ─
-  const mockTrendData = useMemo(
-    () =>
-      Array.from({ length: 7 }).map((_, i) => {
-        const date = subDays(new Date(), 6 - i);
-        return {
-          date: format(date, "dd MMM"),
-          hadir: Math.floor(Math.random() * 20) + 250,
-          izin: Math.floor(Math.random() * 5) + 5,
-          sakit: Math.floor(Math.random() * 10) + 2,
-          tanpa_keterangan: Math.floor(Math.random() * 3),
-        };
-      }),
-    [],
-  );
 
   return (
     <div className="space-y-6">
@@ -116,10 +110,22 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <AttendanceTrendChart data={mockTrendData} isLoading={false} />
+          <div className="flex justify-end mb-2">
+            <Select value={trendDays.toString()} onValueChange={(v) => setTrendDays(parseInt(v))}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Pilih Rentang" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">7 Hari Terakhir</SelectItem>
+                <SelectItem value="30">30 Hari Terakhir</SelectItem>
+                <SelectItem value="180">Semester (180 Hari)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <AttendanceTrendChart data={trendData || []} isLoading={isLoadingTrend} />
         </div>
         <div className="lg:col-span-1">
-          <RecentActivity records={[]} isLoading={isLoadingAttendance} />
+          <RecentActivity records={recentActivity || []} isLoading={isLoadingRecent} />
         </div>
       </div>
     </div>

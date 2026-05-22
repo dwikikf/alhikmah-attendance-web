@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Calendar as CalendarIcon, Loader2, Search } from "lucide-react";
 import { useDailyReport } from "@/queries/useReportQuery";
+import { useClasses } from "@/queries/useClassQuery";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -34,9 +36,15 @@ import type { AttendanceStatus } from "@/types";
 
 export default function DailyReportView() {
   const [date, setDate] = useState<Date>(new Date());
-  const [classId, setClassId] = useState<string>(
-    "e86a8f0f-022d-4a19-bf62-71edaa22a478",
-  ); // Defaulting for now
+  const [classId, setClassId] = useState<string>("");
+
+  const { user } = useAuth();
+  const { data: classesData } = useClasses();
+  
+  const availableClasses = classesData?.data?.filter(c => {
+    if (user?.role === "admin") return true;
+    return c.teacher_id === user?.id;
+  }) || [];
 
   // Fetch report data
   const {
@@ -93,15 +101,15 @@ export default function DailyReportView() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Select
             value={classId}
-            onValueChange={(val) => setClassId(val || "class-1")}
+            onValueChange={(val) => setClassId(val || "")}
           >
             <SelectTrigger className="w-45 bg-background">
               <SelectValue placeholder="Pilih Kelas" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="class-1">Kelas 10A</SelectItem>
-              <SelectItem value="class-2">Kelas 10B</SelectItem>
-              <SelectItem value="class-3">Kelas 11A</SelectItem>
+              {availableClasses.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.class_name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -213,7 +221,7 @@ export default function DailyReportView() {
               <CardContent>
                 <DataTable
                   columns={columns}
-                  data={report.records}
+                  data={report.records || []}
                   searchKey="student_name"
                   searchPlaceholder="Cari nama siswa..."
                 />
