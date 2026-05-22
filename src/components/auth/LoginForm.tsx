@@ -28,7 +28,7 @@ export default function LoginForm({
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
       rememberMe: false,
     },
@@ -43,7 +43,7 @@ export default function LoginForm({
     clearError();
     try {
       await login({
-        email: data.email,
+        username: data.username,
         password: data.password,
         rememberMe: data.rememberMe,
       });
@@ -130,13 +130,13 @@ export default function LoginForm({
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-        {/* Email Field */}
+        {/* Username Field */}
         <div>
           <label
-            htmlFor="login-email"
+            htmlFor="login-username"
             className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Email
+            Username
           </label>
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -150,34 +150,34 @@ export default function LoginForm({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                 />
               </svg>
             </div>
             <input
-              {...register("email")}
-              type="email"
-              id="login-email"
-              placeholder="nama@alhikmah.sch.id"
-              autoComplete="email"
+              {...register("username")}
+              type="text"
+              id="login-username"
+              placeholder="Masukkan username Anda"
+              autoComplete="username"
               disabled={loading}
               className={cn(
                 "block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm shadow-sm transition-all duration-200",
                 "placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0",
                 "disabled:cursor-not-allowed disabled:opacity-60",
                 "dark:bg-gray-800/50 dark:text-white dark:placeholder:text-gray-500",
-                errors.email
+                errors.username
                   ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-900/30"
                   : "border-gray-200 focus:border-emerald-400 focus:ring-emerald-200/50 dark:border-gray-700 dark:focus:border-emerald-500 dark:focus:ring-emerald-900/30",
               )}
             />
           </div>
-          {errors.email && (
+          {errors.username && (
             <p
               className="mt-1.5 text-xs text-red-500 dark:text-red-400"
-              id="login-email-error"
+              id="login-username-error"
             >
-              {errors.email.message}
+              {errors.username.message}
             </p>
           )}
         </div>

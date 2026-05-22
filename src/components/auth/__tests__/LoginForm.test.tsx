@@ -13,7 +13,7 @@ describe('LoginForm', () => {
   it('renders login form correctly', () => {
     (useAuth as any).mockReturnValue({ login: vi.fn(), clearError: vi.fn() });
     render(<LoginForm />);
-    expect(screen.getByPlaceholderText('nama@alhikmah.sch.id')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Masukkan username Anda')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Masukkan password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /masuk/i })).toBeInTheDocument();
   });
@@ -24,7 +24,7 @@ describe('LoginForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /masuk/i }));
     
     await waitFor(() => {
-      expect(screen.getByText('Email wajib diisi')).toBeInTheDocument();
+      expect(screen.getByText('Username wajib diisi')).toBeInTheDocument();
       expect(screen.getByText('Password wajib diisi')).toBeInTheDocument();
     });
   });
@@ -36,12 +36,12 @@ describe('LoginForm', () => {
     render(<LoginForm />);
     
     const user = userEvent.setup();
-    await user.type(screen.getByPlaceholderText('nama@alhikmah.sch.id'), 'test@test.com');
+    await user.type(screen.getByPlaceholderText('Masukkan username Anda'), 'testuser');
     await user.type(screen.getByPlaceholderText('Masukkan password'), 'password123');
     await user.click(screen.getByRole('button', { name: /masuk/i }));
     
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith({ email: 'test@test.com', password: 'password123', rememberMe: false });
+      expect(mockLogin).toHaveBeenCalledWith({ username: 'testuser', password: 'password123', rememberMe: false });
     });
   });
 });

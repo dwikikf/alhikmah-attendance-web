@@ -36,16 +36,16 @@ export interface AuthTokens {
 
 /** Login request payload */
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
   rememberMe?: boolean;
 }
 
-/** Login response from API */
+/** Login response from API (data portion) */
 export interface LoginResponse {
   user: User;
-  tokens: AuthTokens;
-  message: string;
+  token: string;
+  refresh_token: string;
 }
 
 /** Refresh token request */

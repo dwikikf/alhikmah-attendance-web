@@ -5,10 +5,26 @@ import { Calendar as CalendarIcon, Loader2, Search } from "lucide-react";
 import { useDailyReport } from "@/queries/useReportQuery";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import DataTable from "@/components/common/DataTable";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import ReportExporter from "./ReportExporter";
@@ -18,10 +34,16 @@ import type { AttendanceStatus } from "@/types";
 
 export default function DailyReportView() {
   const [date, setDate] = useState<Date>(new Date());
-  const [classId, setClassId] = useState<string>("class-1"); // Defaulting to class-1 for now
+  const [classId, setClassId] = useState<string>(
+    "e86a8f0f-022d-4a19-bf62-71edaa22a478",
+  ); // Defaulting for now
 
   // Fetch report data
-  const { data: report, isLoading, error } = useDailyReport({
+  const {
+    data: report,
+    isLoading,
+    error,
+  } = useDailyReport({
     class_id: classId,
     date: format(date, "yyyy-MM-dd"),
   });
@@ -29,15 +51,18 @@ export default function DailyReportView() {
   const columns = [
     { key: "nisn", header: "NISN" },
     { key: "student_name", header: "Nama Siswa", sortable: true },
-    { 
-      key: "status", 
+    {
+      key: "status",
       header: "Status",
-      cell: (row: any) => <AttendanceStatusBadge status={row.status as AttendanceStatus} />
+      cell: (row: any) => (
+        <AttendanceStatusBadge status={row.status as AttendanceStatus} />
+      ),
     },
-    { 
-      key: "scanned_at", 
+    {
+      key: "scanned_at",
       header: "Waktu Absen",
-      cell: (row: any) => row.scanned_at ? format(new Date(row.scanned_at), "HH:mm") : "-"
+      cell: (row: any) =>
+        row.scanned_at ? format(new Date(row.scanned_at), "HH:mm") : "-",
     },
     {
       key: "is_manual",
@@ -46,24 +71,31 @@ export default function DailyReportView() {
         <span className="text-xs text-muted-foreground">
           {row.is_manual ? "Manual" : "QR Scan"}
         </span>
-      )
-    }
+      ),
+    },
   ];
 
-  const summaryChartData = report ? [{
-    date: format(date, "dd MMM", { locale: id }),
-    hadir: report.summary.hadir,
-    izin: report.summary.izin,
-    sakit: report.summary.sakit,
-    tanpa_keterangan: report.summary.tanpa_keterangan,
-  }] : [];
+  const summaryChartData = report
+    ? [
+        {
+          date: format(date, "dd MMM", { locale: id }),
+          hadir: report.summary.hadir,
+          izin: report.summary.izin,
+          sakit: report.summary.sakit,
+          tanpa_keterangan: report.summary.tanpa_keterangan,
+        },
+      ]
+    : [];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-muted/30 p-4 rounded-lg border">
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Select value={classId} onValueChange={(val) => setClassId(val || "class-1")}>
-            <SelectTrigger className="w-[180px] bg-background">
+          <Select
+            value={classId}
+            onValueChange={(val) => setClassId(val || "class-1")}
+          >
+            <SelectTrigger className="w-45 bg-background">
               <SelectValue placeholder="Pilih Kelas" />
             </SelectTrigger>
             <SelectContent>
@@ -80,12 +112,16 @@ export default function DailyReportView() {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[240px] justify-start text-left font-normal bg-background",
-                  !date && "text-muted-foreground"
+                  "w-60 justify-start text-left font-normal bg-background",
+                  !date && "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "EEEE, dd MMMM yyyy", { locale: id }) : <span>Pilih tanggal</span>}
+                {date ? (
+                  format(date, "EEEE, dd MMMM yyyy", { locale: id })
+                ) : (
+                  <span>Pilih tanggal</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -99,7 +135,7 @@ export default function DailyReportView() {
         </div>
 
         <div className="sm:ml-auto">
-          <ReportExporter 
+          <ReportExporter
             reportType="harian"
             classId={classId}
             filename={`Laporan_Harian_${classId}_${format(date, "yyyyMMdd")}`}
@@ -110,7 +146,9 @@ export default function DailyReportView() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground text-sm">Memuat laporan harian...</p>
+          <p className="mt-4 text-muted-foreground text-sm">
+            Memuat laporan harian...
+          </p>
         </div>
       ) : error ? (
         <div className="p-6 text-center border border-red-200 bg-red-50 text-red-600 rounded-lg">
@@ -122,7 +160,12 @@ export default function DailyReportView() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Ringkasan</CardTitle>
-                <CardDescription>Persentase: <span className="font-semibold text-foreground">{report.summary.hadir_percentage}%</span></CardDescription>
+                <CardDescription>
+                  Persentase:{" "}
+                  <span className="font-semibold text-foreground">
+                    {report.summary.hadir_percentage}%
+                  </span>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 text-center">
@@ -139,7 +182,9 @@ export default function DailyReportView() {
                     <p className="text-xs">Sakit</p>
                   </div>
                   <div className="bg-red-50 text-red-700 rounded-lg p-3">
-                    <p className="text-2xl font-bold">{report.summary.tanpa_keterangan}</p>
+                    <p className="text-2xl font-bold">
+                      {report.summary.tanpa_keterangan}
+                    </p>
                     <p className="text-xs">Alpa</p>
                   </div>
                 </div>
@@ -151,7 +196,11 @@ export default function DailyReportView() {
                 <CardTitle className="text-lg">Visualisasi</CardTitle>
               </CardHeader>
               <CardContent>
-                <AttendanceChart data={summaryChartData} type="bar" height={200} />
+                <AttendanceChart
+                  data={summaryChartData}
+                  type="bar"
+                  height={200}
+                />
               </CardContent>
             </Card>
           </div>
@@ -162,11 +211,11 @@ export default function DailyReportView() {
                 <CardTitle className="text-lg">Data Absensi Siswa</CardTitle>
               </CardHeader>
               <CardContent>
-                <DataTable 
-                  columns={columns} 
-                  data={report.records} 
-                  searchKey="student_name" 
-                  searchPlaceholder="Cari nama siswa..." 
+                <DataTable
+                  columns={columns}
+                  data={report.records}
+                  searchKey="student_name"
+                  searchPlaceholder="Cari nama siswa..."
                 />
               </CardContent>
             </Card>

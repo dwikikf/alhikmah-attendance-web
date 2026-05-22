@@ -25,7 +25,10 @@ export const useStudents = (params: StudentQueryParams) => {
       const url = `/students${queryString ? `?${queryString}` : ""}`;
       
       const res = await api.get<PaginatedResponse<Student>>(url);
-      return res.data;
+      return {
+        ...res.data,
+        data: res.data.data || [],
+      };
     },
   });
 };

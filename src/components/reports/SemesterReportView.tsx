@@ -1,8 +1,20 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useSemesterReport } from "@/queries/useReportQuery";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import DataTable from "@/components/common/DataTable";
 import ReportExporter from "./ReportExporter";
 import AttendanceChart from "./AttendanceChart";
@@ -11,13 +23,17 @@ import { cn } from "@/lib/utils";
 export default function SemesterReportView() {
   const [classId, setClassId] = useState<string>("class-1");
   const [semester, setSemester] = useState<"1" | "2">("1");
-  const [academicYear, setAcademicYear] = useState<string>("2024/2025");
+  const [academicYear, setAcademicYear] = useState<string>("2025/2026");
 
   // Fetch report data
-  const { data: report, isLoading, error } = useSemesterReport({
+  const {
+    data: report,
+    isLoading,
+    error,
+  } = useSemesterReport({
     class_id: classId,
     semester,
-    academic_year: academicYear
+    academic_year: academicYear,
   });
 
   const columns = [
@@ -27,26 +43,34 @@ export default function SemesterReportView() {
     { key: "izin", header: "Izin", sortable: true },
     { key: "sakit", header: "Sakit", sortable: true },
     { key: "tanpa_keterangan", header: "Alpa", sortable: true },
-    { 
-      key: "attendance_percentage", 
-      header: "Persentase", 
+    {
+      key: "attendance_percentage",
+      header: "Persentase",
       sortable: true,
       cell: (row: any) => (
-        <span className={cn(
-          "font-medium",
-          row.attendance_percentage >= 80 ? "text-emerald-600" : 
-          row.attendance_percentage >= 60 ? "text-amber-600" : "text-red-600"
-        )}>
+        <span
+          className={cn(
+            "font-medium",
+            row.attendance_percentage >= 80
+              ? "text-emerald-600"
+              : row.attendance_percentage >= 60
+                ? "text-amber-600"
+                : "text-red-600",
+          )}
+        >
           {row.attendance_percentage}%
         </span>
-      )
+      ),
     },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-muted/30 p-4 rounded-lg border">
-        <Select value={academicYear} onValueChange={(val) => setAcademicYear(val || "2024/2025")}>
+        <Select
+          value={academicYear}
+          onValueChange={(val) => setAcademicYear(val || "2024/2025")}
+        >
           <SelectTrigger className="w-[150px] bg-background">
             <SelectValue placeholder="Tahun Ajaran" />
           </SelectTrigger>
@@ -56,7 +80,10 @@ export default function SemesterReportView() {
           </SelectContent>
         </Select>
 
-        <Select value={semester} onValueChange={(v) => setSemester(v as "1" | "2")}>
+        <Select
+          value={semester}
+          onValueChange={(v) => setSemester(v as "1" | "2")}
+        >
           <SelectTrigger className="w-[140px] bg-background">
             <SelectValue placeholder="Semester" />
           </SelectTrigger>
@@ -66,7 +93,10 @@ export default function SemesterReportView() {
           </SelectContent>
         </Select>
 
-        <Select value={classId} onValueChange={(val) => setClassId(val || "class-1")}>
+        <Select
+          value={classId}
+          onValueChange={(val) => setClassId(val || "class-1")}
+        >
           <SelectTrigger className="w-[150px] bg-background">
             <SelectValue placeholder="Pilih Kelas" />
           </SelectTrigger>
@@ -78,12 +108,12 @@ export default function SemesterReportView() {
         </Select>
 
         <div className="sm:ml-auto">
-          <ReportExporter 
+          <ReportExporter
             reportType="semesteran"
             classId={classId}
             semester={semester}
             academicYear={academicYear}
-            filename={`Laporan_Semester_${semester}_${classId}_${academicYear.replace('/', '-')}`}
+            filename={`Laporan_Semester_${semester}_${classId}_${academicYear.replace("/", "-")}`}
           />
         </div>
       </div>
@@ -91,7 +121,9 @@ export default function SemesterReportView() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground text-sm">Memuat laporan semester...</p>
+          <p className="mt-4 text-muted-foreground text-sm">
+            Memuat laporan semester...
+          </p>
         </div>
       ) : error ? (
         <div className="p-6 text-center border border-red-200 bg-red-50 text-red-600 rounded-lg">
@@ -108,24 +140,38 @@ export default function SemesterReportView() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-2">
-                    <span className="text-muted-foreground">Rata-rata Kehadiran</span>
-                    <span className="font-bold text-emerald-600 text-lg">{report.summary.avg_attendance}%</span>
+                    <span className="text-muted-foreground">
+                      Rata-rata Kehadiran
+                    </span>
+                    <span className="font-bold text-emerald-600 text-lg">
+                      {report.summary.avg_attendance}%
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-2">
-                    <span className="text-muted-foreground">Total Hari Aktif</span>
-                    <span className="font-medium">{report.duration_days} Hari</span>
+                    <span className="text-muted-foreground">
+                      Total Hari Aktif
+                    </span>
+                    <span className="font-medium">
+                      {report.duration_days} Hari
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-2">
                     <span className="text-muted-foreground">Total Izin</span>
-                    <span className="font-medium text-blue-600">{report.summary.total_izin}</span>
+                    <span className="font-medium text-blue-600">
+                      {report.summary.total_izin}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-2">
                     <span className="text-muted-foreground">Total Sakit</span>
-                    <span className="font-medium text-amber-600">{report.summary.total_sakit}</span>
+                    <span className="font-medium text-amber-600">
+                      {report.summary.total_sakit}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Total Alpa</span>
-                    <span className="font-medium text-red-600">{report.summary.total_tanpa_keterangan}</span>
+                    <span className="font-medium text-red-600">
+                      {report.summary.total_tanpa_keterangan}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -134,14 +180,16 @@ export default function SemesterReportView() {
             <div className="lg:col-span-2">
               <Card className="h-full">
                 <CardHeader>
-                  <CardTitle className="text-lg">Tren Kehadiran (Per Bulan)</CardTitle>
+                  <CardTitle className="text-lg">
+                    Tren Kehadiran (Per Bulan)
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <AttendanceChart 
-                    data={report.trend} 
-                    type="line" 
+                  <AttendanceChart
+                    data={report.trend}
+                    type="line"
                     xAxisKey="month"
-                    height={250} 
+                    height={250}
                   />
                 </CardContent>
               </Card>
@@ -153,11 +201,11 @@ export default function SemesterReportView() {
               <CardTitle>Rekapitulasi Siswa</CardTitle>
             </CardHeader>
             <CardContent>
-              <DataTable 
-                columns={columns} 
-                data={report.student_stats} 
-                searchKey="student_name" 
-                searchPlaceholder="Cari nama siswa..." 
+              <DataTable
+                columns={columns}
+                data={report.student_stats}
+                searchKey="student_name"
+                searchPlaceholder="Cari nama siswa..."
               />
             </CardContent>
           </Card>

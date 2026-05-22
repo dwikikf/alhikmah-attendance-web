@@ -99,8 +99,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await authService.login(credentials);
 
-      // Store tokens
-      setTokens(response.tokens);
+      // Store tokens (fallback refreshToken to empty if not provided)
+      setTokens({
+        accessToken: response.token,
+        refreshToken: response.refresh_token || "",
+      });
 
       // Handle remember me
       setRememberMe(credentials.rememberMe ?? false);

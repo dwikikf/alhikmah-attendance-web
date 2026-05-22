@@ -2,6 +2,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { useStudent } from "@/queries/useStudentQuery";
+import { getStudentQRCode } from "@/services/studentService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +21,27 @@ interface StudentDetailProps {
 export default function StudentDetail({ studentId, onBack, onEdit }: StudentDetailProps) {
   const { data: student, isLoading, error } = useStudent(studentId);
   const [activeTab, setActiveTab] = useState("info");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadQR = async () => {
+    if (!student) return;
+    try {
+      setIsDownloading(true);
+      const blob = await getStudentQRCode(studentId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `qrcode_${student.nisn}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Failed to download QR code", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -147,8 +169,9 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
                   </div>
                   
                   <div className="flex justify-center gap-3 mt-6">
-                    <Button variant="outline" className="gap-2">
-                      <Download className="h-4 w-4" /> Download
+                    <Button variant="outline" className="gap-2" onClick={handleDownloadQR} disabled={isDownloading}>
+                      {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 
+                      Download
                     </Button>
                     <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
                       <Printer className="h-4 w-4" /> Cetak Kartu

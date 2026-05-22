@@ -25,7 +25,10 @@ export async function getClasses(
   const response = await api.get<PaginatedResponse<Class>>("/classes", {
     params,
   });
-  return response.data;
+  return {
+    ...response.data,
+    data: response.data.data || [],
+  };
 }
 
 // ─── Get Class Detail ──────────────────────────────────────────────────────────
@@ -41,6 +44,19 @@ export async function getClass(
     `/classes/${encodeURIComponent(id)}`,
   );
   return response.data;
+}
+
+/**
+ * GET /classes/{id}/students
+ * Get students for a specific class.
+ */
+export async function getClassStudents(
+	id: string,
+): Promise<ApiResponse<any[]>> { // Will import Student type next
+	const response = await api.get<ApiResponse<any[]>>(
+		`/classes/${encodeURIComponent(id)}/students`,
+	);
+	return response.data;
 }
 
 // ─── Create Class ──────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { useClass } from "@/queries/useClassQuery";
+import { useClass, useClassStudents } from "@/queries/useClassQuery";
+import { useClassAttendance } from "@/queries/useAttendanceQuery";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Users, Loader2, BookOpen, User, Download, FileSpreadsheet } from "lucide-react";
@@ -15,11 +16,31 @@ interface ClassDetailProps {
 }
 
 export default function ClassDetail({ classId, onBack, onEdit }: ClassDetailProps) {
-  const { data: classData, isLoading, error } = useClass(classId);
+  const { data: classData, isLoading: isLoadingClass, error: classError } = useClass(classId);
+  const { data: students, isLoading: isLoadingStudents, error: studentsError } = useClassStudents(classId);
+  const { data: attendanceData, isLoading: isLoadingAttendance } = useClassAttendance({
+    class_id: classId,
+    date: format(new Date(), "yyyy-MM-dd"),
+  });
+
+  const isLoading = isLoadingClass || isLoadingStudents || isLoadingAttendance;
+  const error = classError || studentsError;
+
+  const studentsWithAttendance = students?.map((student: any) => {
+    // Determine if attendanceData is an array. If backend returns single object or something else, handle it.
+    // Usually it returns an array of attendances.
+    const attendances = Array.isArray(attendanceData) ? attendanceData : [];
+    const record = attendances.find((a: any) => a.student_id === student.id);
+    return {
+      ...student,
+      attendance_today: record ? record.status : null,
+      scanned_at: record ? record.scanned_at : null,
+    };
+  }) || [];
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <div className="flex flex-col items-center justify-center min-h-100">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         <p className="mt-4 text-muted-foreground text-sm">Memuat data kelas...</p>
       </div>
@@ -28,7 +49,7 @@ export default function ClassDetail({ classId, onBack, onEdit }: ClassDetailProp
 
   if (error || !classData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <div className="flex flex-col items-center justify-center min-h-100 text-center">
         <div className="p-4 bg-red-50 text-red-600 rounded-lg mb-4">
           Terjadi kesalahan saat memuat data atau kelas tidak ditemukan.
         </div>
@@ -129,7 +150,7 @@ export default function ClassDetail({ classId, onBack, onEdit }: ClassDetailProp
           <CardContent className="pt-4">
             <DataTable 
               columns={studentColumns} 
-              data={classData.students || []} 
+              data={studentsWithAttendance} 
               searchKey="full_name"
               searchPlaceholder="Cari siswa..."
             />

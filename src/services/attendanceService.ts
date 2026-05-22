@@ -85,28 +85,4 @@ export async function updateAttendance(
   return response.data;
 }
 
-// ─── Student Attendance History ────────────────────────────────────────────────
 
-/** Query params for student attendance history */
-export interface StudentAttendanceParams {
-  from_date: string; // YYYY-MM-DD
-  to_date: string;   // YYYY-MM-DD
-}
-
-/**
- * GET /reports/student/{student_id}?from_date=X&to_date=Y
- * Get attendance history for a specific student within a date range.
- *
- * @param studentId - UUID of the student
- * @param params    - from_date and to_date in YYYY-MM-DD format
- */
-export async function getStudentAttendance(
-  studentId: string,
-  params: StudentAttendanceParams,
-): Promise<ApiResponse<StudentReport>> {
-  const response = await api.get<ApiResponse<StudentReport>>(
-    `/reports/student/${encodeURIComponent(studentId)}`,
-    { params },
-  );
-  return response.data;
-}

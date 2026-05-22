@@ -23,7 +23,10 @@ export const useClasses = (params?: ClassQueryParams) => {
       const url = `/classes${queryString ? `?${queryString}` : ""}`;
       
       const res = await api.get<PaginatedResponse<Class>>(url);
-      return res.data;
+      return {
+        ...res.data,
+        data: res.data.data || [],
+      };
     },
   });
 };
@@ -38,6 +41,18 @@ export const useClass = (id: string) => {
     },
     enabled: !!id,
   });
+};
+
+export const useClassStudents = (id: string) => {
+	return useQuery({
+		queryKey: ["classes", id, "students"],
+		queryFn: async () => {
+			if (!id) return [];
+			const res = await api.get<{ success: boolean; data: any[] }>(`/classes/${id}/students`);
+			return res.data.data;
+		},
+		enabled: !!id,
+	});
 };
 
 export const useCreateClass = () => {

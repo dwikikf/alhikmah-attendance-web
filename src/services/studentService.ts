@@ -24,7 +24,10 @@ export async function getStudents(
   const response = await api.get<PaginatedResponse<Student>>("/students", {
     params,
   });
-  return response.data;
+  return {
+    ...response.data,
+    data: response.data.data || [],
+  };
 }
 
 // ─── Get Single Student ────────────────────────────────────────────────────────

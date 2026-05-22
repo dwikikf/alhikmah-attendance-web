@@ -18,11 +18,19 @@ const authService = {
    * Login with email and password
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>(
+    const response = await api.post<ApiResponse<any>>(
       API_ENDPOINTS.AUTH.LOGIN,
       credentials,
     );
-    return response.data;
+    const data = response.data.data;
+    return {
+      token: data.token,
+      refresh_token: data.refresh_token,
+      user: {
+        ...data.user,
+        name: data.user?.full_name || data.user?.name || "User",
+      },
+    };
   },
 
   /**
@@ -57,10 +65,14 @@ const authService = {
    * Get the currently authenticated user's profile
    */
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<ApiResponse<User>>(
+    const response = await api.get<ApiResponse<any>>(
       API_ENDPOINTS.AUTH.GET_CURRENT_USER,
     );
-    return response.data.data;
+    const user = response.data.data;
+    return {
+      ...user,
+      name: user.full_name || user.name || "User",
+    };
   },
 
   /**
