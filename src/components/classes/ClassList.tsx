@@ -47,7 +47,6 @@ export default function ClassList({
   const [academicYears, setAcademicYears] = useState<string[]>([]);
   const [academicYearFilter, setAcademicYearFilter] = useState("all");
   const [deleteClassId, setDeleteClassId] = useState<string | null>(null);
-  const [academicYears, setAcademicYears] = useState<string[]>([]);
 
   // Queries
   const { data: classesData, isLoading } = useClasses({
