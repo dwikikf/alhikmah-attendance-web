@@ -1,27 +1,41 @@
 import { useState } from "react";
-import {
-  useUsers,
-  useDeleteUser,
-} from "@/queries/useUserQuery";
+import { useUsers, useDeleteUser } from "@/queries/useUserQuery";
 import UserForm from "@/components/users/UserForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, MoreVertical, Edit, Trash2, Shield } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Shield,
+  Book,
+  HandHeart,
+  HandHeartIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import type { SystemUser as User } from "@/types/user";
@@ -67,9 +81,12 @@ export default function UsersPage() {
     setIsFormOpen(false);
   };
 
-  const filteredUsers = (usersData?.data || []).filter(user => 
-    user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = (usersData?.data || []).filter(
+    (user) =>
+      (user?.full_name || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      (user?.username || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (isFormOpen) {
@@ -77,14 +94,16 @@ export default function UsersPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Data Pengguna</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Data Pengguna
+            </h1>
             <p className="text-muted-foreground">Kelola data pengguna sistem</p>
           </div>
         </div>
-        <UserForm 
-          initialData={selectedUser} 
-          onSuccess={handleFormSuccess} 
-          onCancel={() => setIsFormOpen(false)} 
+        <UserForm
+          initialData={selectedUser}
+          onSuccess={handleFormSuccess}
+          onCancel={() => setIsFormOpen(false)}
         />
       </div>
     );
@@ -94,10 +113,17 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Data Pengguna</h1>
-          <p className="text-muted-foreground">Kelola data pengguna sistem (Admin, Guru, dll)</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Data Pengguna
+          </h1>
+          <p className="text-muted-foreground">
+            Kelola data pengguna sistem (Admin dan Guru)
+          </p>
         </div>
-        <Button onClick={handleAdd} className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
+        <Button
+          onClick={handleAdd}
+          className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" /> Tambah Pengguna
         </Button>
       </div>
@@ -122,7 +148,7 @@ export default function UsersPage() {
               <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
+              <TableHead className="w-20"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,19 +160,31 @@ export default function UsersPage() {
               </TableRow>
             ) : filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-10 text-muted-foreground"
+                >
                   Tidak ada data pengguna ditemukan.
                 </TableCell>
               </TableRow>
             ) : (
               filteredUsers.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.full_name}</TableCell>
+                  <TableCell className="font-medium">
+                    {user.full_name}
+                  </TableCell>
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="flex w-fit items-center gap-1">
-                      <Shield className="h-3 w-3" />
+                    <Badge
+                      variant="secondary"
+                      className="flex w-fit items-center gap-1"
+                    >
+                      {user.role === "admin" ? (
+                        <Shield className="h-3 w-3" />
+                      ) : (
+                        <HandHeart className="h-3 w-3" />
+                      )}
                       {user.role}
                     </Badge>
                   </TableCell>
@@ -162,7 +200,7 @@ export default function UsersPage() {
                         <DropdownMenuItem onClick={() => handleEdit(user)}>
                           <Edit className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleDeleteClick(user)}
                           className="text-red-600 focus:bg-red-50 focus:text-red-600"
                         >
@@ -183,14 +221,23 @@ export default function UsersPage() {
           <DialogHeader>
             <DialogTitle>Hapus Pengguna</DialogTitle>
             <DialogDescription>
-              Apakah Anda yakin ingin menghapus pengguna <strong>{userToDelete?.full_name}</strong>? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus pengguna{" "}
+              <strong>{userToDelete?.full_name}</strong>? Tindakan ini tidak
+              dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Batal
             </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteMutation.isPending}>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
               Hapus
             </Button>
           </DialogFooter>

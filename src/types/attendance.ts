@@ -4,7 +4,7 @@
  */
 
 /** Attendance status enum matching PRD */
-export type AttendanceStatus = "hadir" | "izin" | "sakit" | "tanpa_keterangan";
+export type AttendanceStatus = "hadir" | "izin" | "sakit" | "tanpa_keterangan" | "belum_absen";
 
 /** Attendance status labels in Indonesian */
 export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
@@ -12,6 +12,7 @@ export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
   izin: "Izin",
   sakit: "Sakit",
   tanpa_keterangan: "Tanpa Keterangan",
+  belum_absen: "Belum Absen",
 };
 
 /** Attendance status colors for UI badges */
@@ -38,6 +39,11 @@ export const ATTENDANCE_STATUS_COLORS: Record<
     bg: "bg-red-50 dark:bg-red-950/30",
     text: "text-red-700 dark:text-red-400",
     border: "border-red-200 dark:border-red-800",
+  },
+  belum_absen: {
+    bg: "bg-slate-50 dark:bg-slate-950/30",
+    text: "text-slate-700 dark:text-slate-400",
+    border: "border-slate-200 dark:border-slate-800",
   },
 };
 
