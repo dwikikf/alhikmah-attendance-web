@@ -39,8 +39,13 @@ export const useTotalStudents = () => {
           params: { limit: 1, page: 1, is_active: true },
         });
         // The backend may return pagination info in different shapes
-        const pagination = (res.data as any)?.pagination || (res.data as any)?.meta;
-        return pagination?.totalItems ?? pagination?.total ?? (res.data.data || []).length;
+        const pagination =
+          (res.data as any)?.pagination || (res.data as any)?.meta;
+        return (
+          pagination?.totalItems ??
+          pagination?.total ??
+          (res.data.data || []).length
+        );
       } catch {
         return 0;
       }
@@ -61,7 +66,8 @@ export const useTotalClasses = () => {
           params: { limit: 100, page: 1 },
         });
         const data = res.data.data || [];
-        const pagination = (res.data as any)?.pagination || (res.data as any)?.meta;
+        const pagination =
+          (res.data as any)?.pagination || (res.data as any)?.meta;
         return {
           total: pagination?.totalItems ?? pagination?.total ?? data.length,
           classes: data.map((c: any) => ({
@@ -87,7 +93,10 @@ export const useRecentActivity = (limit: number = 10) => {
   return useQuery({
     queryKey: ["dashboard", "recentActivity", limit],
     queryFn: async () => {
-      const res = await api.get<{ success: boolean; data: any[] }>("/dashboard/recent-activity", { params: { limit } });
+      const res = await api.get<{ success: boolean; data: any[] }>(
+        "/dashboard/recent-activity",
+        { params: { limit } },
+      );
       return res.data?.data || [];
     },
   });
@@ -97,16 +106,16 @@ export const useAttendanceTrend = (days: number = 7) => {
   return useQuery({
     queryKey: ["dashboard", "attendanceTrend", days],
     queryFn: async () => {
-      const res = await api.get<{ success: boolean; data: any[] }>("/dashboard/attendance-trend", { params: { days } });
+      const res = await api.get<{ success: boolean; data: any[] }>(
+        "/dashboard/attendance-trend",
+        { params: { days } },
+      );
       return res.data?.data || [];
     },
   });
 };
 
-export const useTodayAttendanceSummary = (
-  classIds: string[],
-  date: string,
-) => {
+export const useTodayAttendanceSummary = (classIds: string[], date: string) => {
   return useQuery({
     queryKey: ["dashboard", "todayAttendance", date, classIds],
     queryFn: async () => {

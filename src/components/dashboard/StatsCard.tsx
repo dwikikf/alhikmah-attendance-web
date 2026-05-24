@@ -47,17 +47,21 @@ export default function StatsCard({
             <div className="text-2xl font-bold">{value}</div>
             
             {(description || trend) && (
-              <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-                {trend && (
-                  <span className={cn(
-                    "font-medium",
-                    trend.positive ? "text-emerald-600" : "text-red-600"
+              <div className="mt-2 flex items-center">
+                {trend ? (
+                  <div className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
+                    trend.positive 
+                      ? "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
+                      : "bg-red-100/80 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                   )}>
-                    {trend.positive ? "+" : ""}{trend.value}%
-                  </span>
+                    <span>{trend.positive ? "+" : ""}{trend.value}%</span>
+                    <span className="font-normal opacity-90">{trend.label}</span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{description}</p>
                 )}
-                {trend ? trend.label : description}
-              </p>
+              </div>
             )}
           </>
         )}

@@ -93,9 +93,11 @@ export default function AttendanceHistory({
       tanpa_keterangan: 0,
     };
     records.forEach((r) => {
-      s[r.status]++;
+      if (r.status !== "belum_absen") {
+        s[r.status]++;
+      }
     });
-    const total = records.length;
+    const total = records.filter(r => r.status !== "belum_absen").length;
     s.hadir_percentage = total > 0 ? Math.round((s.hadir / total) * 100) : 0;
     return s;
   }, [records]);

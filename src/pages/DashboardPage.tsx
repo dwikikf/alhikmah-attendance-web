@@ -110,19 +110,12 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="flex justify-end mb-2">
-            <Select value={trendDays.toString()} onValueChange={(v) => setTrendDays(parseInt(v))}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Pilih Rentang" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 Hari Terakhir</SelectItem>
-                <SelectItem value="30">30 Hari Terakhir</SelectItem>
-                <SelectItem value="180">Semester (180 Hari)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <AttendanceTrendChart data={trendData || []} isLoading={isLoadingTrend} />
+          <AttendanceTrendChart 
+            data={trendData || []} 
+            isLoading={isLoadingTrend} 
+            timeRange={trendDays}
+            onTimeRangeChange={setTrendDays}
+          />
         </div>
         <div className="lg:col-span-1">
           <RecentActivity records={recentActivity || []} isLoading={isLoadingRecent} />
