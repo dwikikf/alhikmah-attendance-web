@@ -7,8 +7,20 @@ import { useClasses } from "@/queries/useClassQuery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
@@ -17,7 +29,7 @@ import type { Student, CreateStudentDto, UpdateStudentDto } from "@/types";
 type Gender = "laki-laki" | "perempuan";
 
 const studentSchema = z.object({
-  nisn: z.string().min(5, "NISN minimal 5 karakter"),
+  nisn: z.string().regex(/^\d{10}$/, "NISN harus berupa 10 digit angka"),
   full_name: z.string().min(3, "Nama minimal 3 karakter"),
   class_id: z.string().min(1, "Kelas harus dipilih"),
   gender: z.enum(["laki-laki", "perempuan"]),
@@ -33,24 +45,34 @@ interface StudentFormProps {
   onCancel: () => void;
 }
 
-export default function StudentForm({ initialData, onSuccess, onCancel }: StudentFormProps) {
+export default function StudentForm({
+  initialData,
+  onSuccess,
+  onCancel,
+}: StudentFormProps) {
   const isEditing = !!initialData;
   const { data: classesData } = useClasses();
-  
+
   const createMutation = useCreateStudent();
   const updateMutation = useUpdateStudent();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<StudentFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
       nisn: initialData?.nisn || "",
       full_name: initialData?.full_name || "",
       class_id: initialData?.class_id || "",
       gender: (initialData?.gender as Gender) || "laki-laki",
-      date_of_birth: initialData?.date_of_birth?.split('T')[0] || "",
+      date_of_birth: initialData?.date_of_birth?.split("T")[0] || "",
       is_active: initialData?.is_active ?? true,
-    }
+    },
   });
 
   const onSubmit = async (data: StudentFormValues) => {
@@ -88,38 +110,48 @@ export default function StudentForm({ initialData, onSuccess, onCancel }: Studen
   return (
     <Card className="w-full max-w-2xl mx-auto border-none shadow-none sm:border sm:shadow-sm">
       <CardHeader>
-        <CardTitle>{isEditing ? "Edit Data Siswa" : "Tambah Siswa Baru"}</CardTitle>
+        <CardTitle>
+          {isEditing ? "Edit Data Siswa" : "Tambah Siswa Baru"}
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="nisn">NISN</Label>
-              <Input 
-                id="nisn" 
-                {...register("nisn")} 
-                disabled={isEditing || isPending} 
+              <Input
+                id="nisn"
+                {...register("nisn")}
+                disabled={isEditing || isPending}
                 placeholder="Masukkan NISN"
               />
-              {errors.nisn && <p className="text-xs text-red-500">{errors.nisn.message}</p>}
+              {errors.nisn && (
+                <p className="text-xs text-red-500">{errors.nisn.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="full_name">Nama Lengkap</Label>
-              <Input 
-                id="full_name" 
-                {...register("full_name")} 
-                disabled={isPending} 
+              <Input
+                id="full_name"
+                {...register("full_name")}
+                disabled={isPending}
                 placeholder="Masukkan nama lengkap"
               />
-              {errors.full_name && <p className="text-xs text-red-500">{errors.full_name.message}</p>}
+              {errors.full_name && (
+                <p className="text-xs text-red-500">
+                  {errors.full_name.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="class_id">Kelas</Label>
-              <Select 
-                value={watch("class_id")} 
-                onValueChange={(val) => setValue("class_id", val || "")}
+              <Select
+                value={watch("class_id")}
+                onValueChange={(val: string) =>
+                  setValue("class_id", val || "", { shouldValidate: true })
+                }
                 disabled={isPending}
               >
                 <SelectTrigger>
@@ -127,17 +159,23 @@ export default function StudentForm({ initialData, onSuccess, onCancel }: Studen
                 </SelectTrigger>
                 <SelectContent>
                   {classesData?.data.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.class_name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.class_name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.class_id && <p className="text-xs text-red-500">{errors.class_id.message}</p>}
+              {errors.class_id && (
+                <p className="text-xs text-red-500">
+                  {errors.class_id.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="gender">Jenis Kelamin</Label>
-              <Select 
-                value={watch("gender")} 
+              <Select
+                value={watch("gender")}
                 onValueChange={(val) => setValue("gender", val as Gender)}
                 disabled={isPending}
               >
@@ -149,26 +187,30 @@ export default function StudentForm({ initialData, onSuccess, onCancel }: Studen
                   <SelectItem value="perempuan">Perempuan</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.gender && <p className="text-xs text-red-500">{errors.gender.message}</p>}
+              {errors.gender && (
+                <p className="text-xs text-red-500">{errors.gender.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="date_of_birth">Tanggal Lahir (Opsional)</Label>
-              <Input 
-                id="date_of_birth" 
+              <Input
+                id="date_of_birth"
                 type="date"
-                {...register("date_of_birth")} 
-                disabled={isPending} 
+                {...register("date_of_birth")}
+                disabled={isPending}
               />
             </div>
-            
+
             {isEditing && (
               <div className="space-y-2 flex flex-col justify-end pb-2">
                 <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="is_active" 
-                    checked={watch("is_active")} 
-                    onCheckedChange={(checked) => setValue("is_active", checked)}
+                  <Switch
+                    id="is_active"
+                    checked={watch("is_active")}
+                    onCheckedChange={(checked) =>
+                      setValue("is_active", checked)
+                    }
                     disabled={isPending}
                   />
                   <Label htmlFor="is_active" className="font-normal">
@@ -180,11 +222,24 @@ export default function StudentForm({ initialData, onSuccess, onCancel }: Studen
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2 border-t p-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isPending}
+          >
             <X className="mr-2 h-4 w-4" /> Batal
           </Button>
-          <Button type="submit" disabled={isPending} className="bg-emerald-600 hover:bg-emerald-700">
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
             Simpan Data
           </Button>
         </CardFooter>

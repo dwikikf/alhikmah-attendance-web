@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { 
@@ -55,6 +55,11 @@ export default function StudentList({ onAdd, onEdit, onViewDetail }: StudentList
   });
 
   const { data: classesData, isLoading: isLoadingClasses } = useClasses();
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, classFilter, statusFilter]);
 
   // Mutations
   const deleteMutation = useDeleteStudent();
@@ -184,7 +189,9 @@ export default function StudentList({ onAdd, onEdit, onViewDetail }: StudentList
           <DataTable 
             columns={columns} 
             data={studentsData?.data || []} 
-            // In a real implementation with backend pagination, we'd pass page and totalPages here
+            page={page}
+            totalPages={studentsData?.pagination?.totalPages || 1}
+            onPageChange={setPage}
           />
         )}
       </div>

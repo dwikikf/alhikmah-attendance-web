@@ -74,11 +74,13 @@ export default function RecentActivity({
                           •
                         </span>
                         <p className="text-xs text-muted-foreground">
-                          {format(
-                            new Date(record.scanned_at || record.recorded_at),
-                            "HH:mm",
-                            { locale: idLocale },
-                          )}
+                          {record.scanned_at || record.recorded_at
+                            ? format(
+                                new Date((record.scanned_at || record.recorded_at) as string),
+                                "HH:mm",
+                                { locale: idLocale },
+                              )
+                            : "-"}
                         </p>
                       </div>
                     </div>

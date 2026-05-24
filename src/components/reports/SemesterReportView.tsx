@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useSemesterReport } from "@/queries/useReportQuery";
 import { useClasses } from "@/queries/useClassQuery";
@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 export default function SemesterReportView() {
   const [classId, setClassId] = useState<string>("");
   const [semester, setSemester] = useState<"1" | "2">("1");
-  const [academicYear, setAcademicYear] = useState<string>("2025/2026");
+  const [academicYear, setAcademicYear] = useState<string>("");
 
   const { user } = useAuth();
   const { data: classesData } = useClasses();
@@ -34,6 +34,18 @@ export default function SemesterReportView() {
     if (user?.role === "admin") return true;
     return c.teacher_id === user?.id;
   }) || [];
+
+  const academicYears = useMemo(() => {
+    if (!availableClasses || availableClasses.length === 0) return ["2024/2025"];
+    const years = new Set(availableClasses.map(c => c.academic_year).filter(Boolean));
+    return Array.from(years).sort().reverse();
+  }, [availableClasses]);
+
+  useEffect(() => {
+    if (academicYears.length > 0 && (!academicYear || !academicYears.includes(academicYear))) {
+      setAcademicYear(academicYears[0]);
+    }
+  }, [academicYears, academicYear]);
 
   // Fetch report data
   const {
@@ -85,8 +97,9 @@ export default function SemesterReportView() {
             <SelectValue placeholder="Tahun Ajaran" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="2023/2024">2023/2024</SelectItem>
-            <SelectItem value="2024/2025">2024/2025</SelectItem>
+            {academicYears.map((year) => (
+              <SelectItem key={year} value={year}>{year}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

@@ -1,25 +1,31 @@
-import { useState } from "react";
-import { 
-  Plus, 
-  Search, 
-  MoreVertical, 
-  Pencil, 
-  Trash2, 
+import { useState, useEffect } from "react";
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  Pencil,
+  Trash2,
   Users,
   Loader2,
-  MoreHorizontal
+  MoreHorizontal,
 } from "lucide-react";
 import { useClasses, useDeleteClass } from "@/queries/useClassQuery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DataTable from "@/components/common/DataTable";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -32,21 +38,29 @@ interface ClassListProps {
   onViewDetail: (classData: Class) => void;
 }
 
-export default function ClassList({ onAdd, onEdit, onViewDetail }: ClassListProps) {
+export default function ClassList({
+  onAdd,
+  onEdit,
+  onViewDetail,
+}: ClassListProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [academicYears, setAcademicYears] = useState<string[]>([]);
   const [academicYearFilter, setAcademicYearFilter] = useState("all");
   const [deleteClassId, setDeleteClassId] = useState<string | null>(null);
 
   // Queries
   const { data: classesData, isLoading } = useClasses({
-    academic_year: academicYearFilter !== "all" ? academicYearFilter : undefined,
+    academic_year:
+      academicYearFilter !== "all" ? academicYearFilter : undefined,
   });
 
   // Filter local search since the API might not support searching by class name directly
-  const filteredClasses = classesData?.data.filter(c => 
-    c.class_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.teacher_name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredClasses =
+    classesData?.data.filter(
+      (c) =>
+        c.class_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.teacher_name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   // Mutations
   const deleteMutation = useDeleteClass();
@@ -64,27 +78,32 @@ export default function ClassList({ onAdd, onEdit, onViewDetail }: ClassListProp
   };
 
   const columns = [
-    { 
-      key: "class_name", 
-      header: "Nama Kelas", 
+    {
+      key: "class_name",
+      header: "Nama Kelas",
       sortable: true,
       cell: (row: Class) => (
-        <div className="font-medium cursor-pointer hover:underline text-emerald-700" onClick={() => onViewDetail(row)}>
+        <div
+          className="font-medium cursor-pointer hover:underline text-emerald-700"
+          onClick={() => onViewDetail(row)}
+        >
           {row.class_name}
         </div>
-      )
+      ),
     },
     { key: "teacher_name", header: "Wali Kelas", sortable: true },
     { key: "academic_year", header: "Tahun Ajaran" },
-    { 
-      key: "student_count", 
+    {
+      key: "student_count",
       header: "Jumlah Siswa",
       cell: (row: Class) => (
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-muted-foreground" />
-          <span>{row.student_count} / {row.capacity}</span>
+          <span>
+            {row.student_count} / {row.capacity}
+          </span>
         </div>
-      )
+      ),
     },
     {
       key: "actions",
@@ -99,27 +118,41 @@ export default function ClassList({ onAdd, onEdit, onViewDetail }: ClassListProp
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onViewDetail(row)} className="cursor-pointer gap-2">
+            <DropdownMenuItem
+              onClick={() => onViewDetail(row)}
+              className="cursor-pointer gap-2"
+            >
               <Users className="h-4 w-4 text-emerald-600" /> Lihat Detail Kelas
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(row)} className="cursor-pointer gap-2">
+            <DropdownMenuItem
+              onClick={() => onEdit(row)}
+              className="cursor-pointer gap-2"
+            >
               <Pencil className="h-4 w-4 text-blue-600" /> Edit Kelas
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => setDeleteClassId(row.id)} 
+            <DropdownMenuItem
+              onClick={() => setDeleteClassId(row.id)}
               className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
             >
               <Trash2 className="h-4 w-4" /> Hapus
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
-    }
+      ),
+    },
   ];
 
   // Get unique academic years for filter
-  const academicYears = Array.from(new Set(classesData?.data.map(c => c.academic_year) || []));
+  // Jangan Ubah ini
+  useEffect(() => {
+    if (academicYearFilter === "all" && classesData?.data) {
+      const uniqueYears = Array.from(
+        new Set(classesData.data.map((c) => c.academic_year)),
+      );
+      setAcademicYears(uniqueYears);
+    }
+  }, [classesData, academicYearFilter]);
 
   return (
     <div className="space-y-4">
@@ -134,19 +167,27 @@ export default function ClassList({ onAdd, onEdit, onViewDetail }: ClassListProp
               className="pl-8 bg-background"
             />
           </div>
-          <Select value={academicYearFilter} onValueChange={(val) => setAcademicYearFilter(val || "all")}>
-            <SelectTrigger className="w-full sm:w-[180px] bg-background">
+          <Select
+            value={academicYearFilter}
+            onValueChange={(val) => setAcademicYearFilter(val || "all")}
+          >
+            <SelectTrigger className="w-full sm:w-45 bg-background">
               <SelectValue placeholder="Tahun Ajaran" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Tahun Ajaran</SelectItem>
               {academicYears.map((year) => (
-                <SelectItem key={year} value={year}>{year}</SelectItem>
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={onAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+        <Button
+          onClick={onAdd}
+          className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+        >
           <Plus className="h-4 w-4" /> Tambah Kelas
         </Button>
       </div>
@@ -157,14 +198,11 @@ export default function ClassList({ onAdd, onEdit, onViewDetail }: ClassListProp
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <DataTable 
-            columns={columns} 
-            data={filteredClasses} 
-          />
+          <DataTable columns={columns} data={filteredClasses} />
         )}
       </div>
 
-      <ConfirmDialog 
+      <ConfirmDialog
         open={!!deleteClassId}
         onOpenChange={(open) => !open && setDeleteClassId(null)}
         title="Hapus Kelas"

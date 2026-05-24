@@ -13,7 +13,7 @@ export interface Student {
   class_id: string;
   class_name: string;
   date_of_birth: string | null; // ISO date
-  gender: Gender | null;
+  gender: Gender;
   photo_url: string | null;
   qr_code_data: string; // "NISN|FullName|ClassName"
   is_active: boolean;

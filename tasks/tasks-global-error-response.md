@@ -29,6 +29,6 @@ Melakukan audit dan refactoring secara global di Backend (Golang) dan Frontend (
 - [x] 5.0 Testing & Validasi
   - [x] 5.1 Verifikasi build backend
   - [x] 5.2 Verifikasi build frontend
-- [ ] 6.0 Penyelesaian & Pull Request
-  - [ ] 6.1 Pastikan semua file masuk dalam commit
-  - [ ] 6.2 Buat instruksi pull request/merge
+- [x] 6.0 Penyelesaian & Pull Request
+  - [x] 6.1 Pastikan semua file masuk dalam commit
+  - [x] 6.2 Buat instruksi pull request/merge

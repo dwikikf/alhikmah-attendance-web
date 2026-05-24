@@ -15,8 +15,12 @@ export default function AttendanceStatusBadge({
   status,
   size = "default",
 }: AttendanceStatusBadgeProps) {
-  const colors = ATTENDANCE_STATUS_COLORS[status];
-  const label = ATTENDANCE_STATUS_LABELS[status];
+  const colors = ATTENDANCE_STATUS_COLORS[status] || {
+    bg: "bg-gray-50 dark:bg-gray-950/30",
+    text: "text-gray-700 dark:text-gray-400",
+    border: "border-gray-200 dark:border-gray-800",
+  };
+  const label = status ? (ATTENDANCE_STATUS_LABELS[status] || status) : "-";
 
   return (
     <Badge
