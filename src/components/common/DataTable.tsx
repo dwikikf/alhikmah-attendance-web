@@ -36,6 +36,9 @@ interface DataTableProps<T> {
   searchKey?: string;
   pageSize?: number;
   onRowClick?: (row: T) => void;
+  page?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 type SortDirection = "asc" | "desc" | null;
@@ -53,10 +56,19 @@ export default function DataTable<T = any>({
   searchKey,
   pageSize = 10,
   onRowClick,
+  page,
+  totalPages: externalTotalPages,
+  onPageChange,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortState>({ key: null, direction: null });
   const [currentPage, setCurrentPage] = useState(1);
+
+  const activePage = page !== undefined ? page : currentPage;
+  const handlePageChange = (p: number) => {
+    if (onPageChange) onPageChange(p);
+    else setCurrentPage(p);
+  };
 
   // Filter data by search
   const filteredData = useMemo(() => {
@@ -91,12 +103,16 @@ export default function DataTable<T = any>({
   }, [filteredData, sort]);
 
   // Pagination
-  const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  const paginatedData = sortedData.slice(
-    (safeCurrentPage - 1) * pageSize,
-    safeCurrentPage * pageSize
-  );
+  const computedTotalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
+  const totalPages = externalTotalPages !== undefined ? externalTotalPages : computedTotalPages;
+  const safeCurrentPage = Math.min(activePage, totalPages);
+  
+  const paginatedData = page !== undefined 
+    ? sortedData 
+    : sortedData.slice(
+        (safeCurrentPage - 1) * pageSize,
+        safeCurrentPage * pageSize
+      );
 
   const handleSort = (key: string) => {
     setSort((prev) => {
@@ -156,7 +172,7 @@ export default function DataTable<T = any>({
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setCurrentPage(1);
+              handlePageChange(1);
             }}
             className="pl-8"
           />
@@ -218,32 +234,34 @@ export default function DataTable<T = any>({
       </div>
 
       {/* Pagination */}
-      {sortedData.length > pageSize && (
+      {(externalTotalPages !== undefined ? totalPages > 1 : sortedData.length > pageSize) && (
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            Menampilkan {(safeCurrentPage - 1) * pageSize + 1}-
-            {Math.min(safeCurrentPage * pageSize, sortedData.length)} dari{" "}
-            {sortedData.length} data
+            {page !== undefined ? (
+              <span>Menampilkan halaman {activePage} dari {totalPages}</span>
+            ) : (
+              <span>Menampilkan {(safeCurrentPage - 1) * pageSize + 1}-
+              {Math.min(safeCurrentPage * pageSize, sortedData.length)} dari{" "}
+              {sortedData.length} data</span>
+            )}
           </p>
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={safeCurrentPage <= 1}
+              onClick={() => handlePageChange(Math.max(1, activePage - 1))}
+              disabled={activePage <= 1}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
             <span className="px-2 text-xs text-muted-foreground">
-              {safeCurrentPage} / {totalPages}
+              {activePage} / {totalPages}
             </span>
             <Button
               variant="outline"
               size="icon"
-              onClick={() =>
-                setCurrentPage((p) => Math.min(totalPages, p + 1))
-              }
-              disabled={safeCurrentPage >= totalPages}
+              onClick={() => handlePageChange(Math.min(totalPages, activePage + 1))}
+              disabled={activePage >= totalPages}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>

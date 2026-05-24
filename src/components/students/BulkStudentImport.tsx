@@ -162,8 +162,8 @@ export default function BulkStudentImport({
       setImportResult(res.data.data);
       toast.success(`${res.data.data.success} data siswa berhasil diimpor`);
       if (onSuccess) onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat mengimpor data");
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsUploading(false);
     }

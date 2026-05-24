@@ -16,6 +16,8 @@ import {
   isTokenExpiringSoon,
 } from "@/utils/auth";
 import type { RefreshTokenResponse } from "@/types/auth";
+import type { ApiErrorResponse } from "@/types/api";
+import { toast } from "sonner";
 
 /** Flag to prevent multiple simultaneous refresh attempts */
 let isRefreshing = false;
@@ -89,8 +91,17 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Only handle 401 errors (unauthorized)
+    // Only handle 401 errors (unauthorized) for token refresh
     if (error.response?.status !== 401 || !originalRequest) {
+      // Global error handling for non-401 errors
+      const errorData = error.response?.data as ApiErrorResponse;
+      if (errorData?.message) {
+        toast.error(errorData.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Terjadi kesalahan yang tidak diketahui.");
+      }
       return Promise.reject(error);
     }
 

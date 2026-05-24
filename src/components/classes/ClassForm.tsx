@@ -26,17 +26,14 @@ import { useUsers } from "@/queries/useUserQuery";
 import type { Class, CreateClassDto, UpdateClassDto } from "@/types";
 
 const classSchema = z.object({
-  class_name: z
-    .string()
-    .trim()
-    .min(1, "Nama kelas wajib diisi")
-    .min(5, "Nama kelas minimal 5 karakter"),
+  class_name: z.string().trim().min(3, "Nama kelas minimal 3 karakter"),
   teacher_id: z.string().min(1, "Wali Kelas wajib dipilih"),
   academic_year: z
     .string()
     .trim()
+    .min(1, "Tahun ajaran wajib diisi")
     .regex(/^\d{4}\/\d{4}$/, "Format tahun ajaran harus seperti 2026/2027"),
-  capacity: z.coerce.number().min(1).max(50),
+  capacity: z.coerce.number().min(1).max(40),
   description: z.string().optional(),
 });
 
@@ -62,7 +59,6 @@ export default function ClassForm({
   const { data: usersData, isLoading: isLoadingUsers } = useUsers({
     role: "teacher",
     is_active: true,
-    limit: 100,
   });
   const teachers = usersData?.data || [];
 
@@ -77,7 +73,7 @@ export default function ClassForm({
     defaultValues: {
       class_name: initialData?.class_name || "",
       teacher_id: initialData?.teacher_id || "",
-      academic_year: initialData?.academic_year || "",
+      academic_year: initialData?.academic_year || "2026/2027",
       capacity: initialData?.capacity || 40,
       description: initialData?.description || "",
     },
@@ -108,8 +104,8 @@ export default function ClassForm({
         toast.success("Kelas baru berhasil ditambahkan");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal menyimpan data kelas");
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -144,7 +140,7 @@ export default function ClassForm({
                 id="academic_year"
                 {...register("academic_year")}
                 disabled={isEditing || isPending}
-                placeholder="Contoh: 2026/2027"
+                placeholder="Contoh: 2024/2025"
               />
               {errors.academic_year && (
                 <p className="text-xs text-red-500">

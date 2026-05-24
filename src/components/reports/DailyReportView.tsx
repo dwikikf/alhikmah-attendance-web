@@ -83,14 +83,14 @@ export default function DailyReportView() {
     },
   ];
 
-  const summaryChartData = report
+  const summaryChartData = report && report.summary
     ? [
         {
           date: format(date, "dd MMM", { locale: id }),
-          hadir: report.summary.hadir,
-          izin: report.summary.izin,
-          sakit: report.summary.sakit,
-          tanpa_keterangan: report.summary.tanpa_keterangan,
+          hadir: report.summary.hadir || 0,
+          izin: report.summary.izin || 0,
+          sakit: report.summary.sakit || 0,
+          tanpa_keterangan: report.summary.tanpa_keterangan || 0,
         },
       ]
     : [];
@@ -171,27 +171,27 @@ export default function DailyReportView() {
                 <CardDescription>
                   Persentase:{" "}
                   <span className="font-semibold text-foreground">
-                    {report.summary.hadir_percentage}%
+                    {report?.summary?.hadir_percentage ?? 0}%
                   </span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="bg-emerald-50 text-emerald-700 rounded-lg p-3">
-                    <p className="text-2xl font-bold">{report.summary.hadir}</p>
+                    <p className="text-2xl font-bold">{report?.summary?.hadir ?? 0}</p>
                     <p className="text-xs">Hadir</p>
                   </div>
                   <div className="bg-blue-50 text-blue-700 rounded-lg p-3">
-                    <p className="text-2xl font-bold">{report.summary.izin}</p>
+                    <p className="text-2xl font-bold">{report?.summary?.izin ?? 0}</p>
                     <p className="text-xs">Izin</p>
                   </div>
                   <div className="bg-amber-50 text-amber-700 rounded-lg p-3">
-                    <p className="text-2xl font-bold">{report.summary.sakit}</p>
+                    <p className="text-2xl font-bold">{report?.summary?.sakit ?? 0}</p>
                     <p className="text-xs">Sakit</p>
                   </div>
                   <div className="bg-red-50 text-red-700 rounded-lg p-3">
                     <p className="text-2xl font-bold">
-                      {report.summary.tanpa_keterangan}
+                      {report?.summary?.tanpa_keterangan ?? 0}
                     </p>
                     <p className="text-xs">Alpa</p>
                   </div>

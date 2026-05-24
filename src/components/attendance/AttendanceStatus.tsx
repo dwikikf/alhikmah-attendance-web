@@ -20,7 +20,7 @@ export default function AttendanceStatusBadge({
     text: "text-gray-700 dark:text-gray-400",
     border: "border-gray-200 dark:border-gray-800",
   };
-  const label = ATTENDANCE_STATUS_LABELS[status] || status || "-";
+  const label = status ? (ATTENDANCE_STATUS_LABELS[status] || status) : "-";
 
   return (
     <Badge

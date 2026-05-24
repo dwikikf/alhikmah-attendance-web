@@ -28,15 +28,8 @@ import type { Student, CreateStudentDto, UpdateStudentDto } from "@/types";
 type Gender = "laki-laki" | "perempuan";
 
 const studentSchema = z.object({
-  nisn: z
-    .string()
-    .length(10, "NISN harus terdiri dari 10 digit")
-    .regex(/^\d+$/, "NISN harus berupa angka"),
-  full_name: z
-    .string()
-    .trim()
-    .min(1, "Nama lengkap wajib diisi")
-    .min(3, "Nama minimal 3 karakter"),
+  nisn: z.string().regex(/^\d{10}$/, "NISN harus berupa 10 digit angka"),
+  full_name: z.string().min(3, "Nama minimal 3 karakter"),
   class_id: z.string().min(1, "Kelas harus dipilih"),
   gender: z.enum(["laki-laki", "perempuan"]),
   date_of_birth: z.string().optional(),
@@ -107,8 +100,9 @@ export default function StudentForm({
         toast.success("Siswa baru berhasil ditambahkan");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal menyimpan data siswa");
+    } catch (error) {
+      // Error is handled globally by Axios interceptor
+      console.error(error);
     }
   };
 
@@ -157,7 +151,7 @@ export default function StudentForm({
               <Select
                 value={watch("class_id")}
                 onValueChange={(val: string) =>
-                  setValue("class_id", val, { shouldValidate: true })
+                  setValue("class_id", val || "", { shouldValidate: true })
                 }
                 disabled={isPending}
               >

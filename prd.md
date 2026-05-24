@@ -282,7 +282,7 @@ CREATE TABLE users (
   email VARCHAR(100) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(150) NOT NULL,
-  role ENUM('admin', 'guru') DEFAULT 'guru',
+  role ENUM('admin', 'teacher') DEFAULT 'teacher',
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -299,9 +299,9 @@ CREATE INDEX idx_users_email ON users(email);
 ```sql
 CREATE TABLE classes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  class_name VARCHAR(50) NOT NULL,  -- e.g., "1A", "1B", "2A"
+  class_name VARCHAR(50) NOT NULL
   teacher_id UUID NOT NULL REFERENCES users(id),
-  academic_year VARCHAR(9) NOT NULL,  -- e.g., "2024/2025"
+  academic_year VARCHAR(9) NOT NULL,  -- e.g., "2026/2027"
   capacity INT DEFAULT 30,
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

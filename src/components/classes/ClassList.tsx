@@ -44,6 +44,7 @@ export default function ClassList({
   onViewDetail,
 }: ClassListProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [academicYears, setAcademicYears] = useState<string[]>([]);
   const [academicYearFilter, setAcademicYearFilter] = useState("all");
   const [deleteClassId, setDeleteClassId] = useState<string | null>(null);
   const [academicYears, setAcademicYears] = useState<string[]>([]);
@@ -144,10 +145,7 @@ export default function ClassList({
   ];
 
   // Get unique academic years for filter
-  // const academicYears = Array.from(
-  //   new Set(classesData?.data.map((c) => c.academic_year) || []),
-  // );
-
+  // Jangan Ubah ini
   useEffect(() => {
     if (academicYearFilter === "all" && classesData?.data) {
       const uniqueYears = Array.from(

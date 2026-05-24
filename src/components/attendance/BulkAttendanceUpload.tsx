@@ -139,9 +139,8 @@ export default function BulkAttendanceUpload({ classId, onSuccess }: BulkAttenda
       toast.success(`${parsedData.length} data absensi berhasil diunggah`);
       setIsOpen(false);
       onSuccess?.();
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Terjadi kesalahan saat mengunggah";
-      toast.error(msg);
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsUploading(false);
     }
