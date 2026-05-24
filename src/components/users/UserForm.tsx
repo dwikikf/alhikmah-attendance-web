@@ -70,8 +70,8 @@ export default function UserForm({ initialData, onSuccess, onCancel }: UserFormP
         toast.success("Pengguna baru berhasil ditambahkan");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal menyimpan data pengguna");
+    } catch (error) {
+      console.error(error);
     }
   };
 

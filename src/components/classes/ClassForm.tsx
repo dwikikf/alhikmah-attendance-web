@@ -75,8 +75,8 @@ export default function ClassForm({ initialData, onSuccess, onCancel }: ClassFor
         toast.success("Kelas baru berhasil ditambahkan");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal menyimpan data kelas");
+    } catch (error) {
+      console.error(error);
     }
   };
 

@@ -79,8 +79,9 @@ export default function StudentForm({ initialData, onSuccess, onCancel }: Studen
         toast.success("Siswa baru berhasil ditambahkan");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal menyimpan data siswa");
+    } catch (error) {
+      // Error is handled globally by Axios interceptor
+      console.error(error);
     }
   };
 
