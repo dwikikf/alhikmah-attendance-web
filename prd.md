@@ -4,6 +4,10 @@
 
 Aplikasi absensi siswa SD berbasis QR code yang memudahkan pencatatan kehadiran siswa secara real-time. Setiap siswa memiliki QR code unik yang digenerate dari NISN (Nomor Induk Siswa Nasional). QR code di-scan menggunakan kamera device oleh guru pada saat awal pembelajaran di kelas. Sistem mencatat data kehadiran siswa dan menyediakan laporan absensi harian, mingguan, dan bulanan bahkan per-semester paling penting untuk guru.
 
+Aplikasi ini dibagi menjadi dua platform:
+1. **Web Dashboard**: Digunakan untuk manajemen data siswa, guru, pengaturan kelas, dan melihat laporan absensi.
+2. **Mobile App (Android)**: Difokuskan secara eksklusif hanya untuk **Login Guru** dan **Scanning QR Code** pada saat absensi kehadiran siswa di kelas.
+
 **Masalah yang diselesaikan:**
 
 - Proses absensi manual memakan waktu dan rentan kesalahan pencatatan
@@ -198,7 +202,7 @@ Filter (Kelas/Siswa/Status) → View → Download/Export/Print
 
 ## Technical Considerations
 
-### Technology Stack (Phase 1: Web Version)
+### Technology Stack
 
 **Frontend Web:**
 
@@ -233,6 +237,13 @@ Filter (Kelas/Siswa/Status) → View → Download/Export/Print
   - `air`: Live reload untuk development
   - `golang-migrate`: Database migration tool
   - `viper`: Configuration & environment variables management
+
+**Mobile App (Android):**
+
+- **Framework**: React Native dengan Expo
+- **Runtime/Package Manager**: Bun
+- **QR Code Scanner**: `expo-camera` (Library resmi dari Expo untuk pemindaian barcode/QR code yang sangat efisien dan teroptimasi di device Android)
+- **Scope Fungsionalitas**: Aplikasi mobile dibatasi secara ketat hanya untuk fungsionalitas **Login Guru** dan **Scanning QR Code**. Fungsionalitas lain (misalnya melihat riwayat absensi, pelaporan, atau manajemen data) hanya dikelola di Web.
 
 **Deployment & DevOps:**
 
