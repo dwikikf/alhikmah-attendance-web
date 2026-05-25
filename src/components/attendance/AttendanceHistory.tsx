@@ -35,7 +35,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Filter, QrCode, PenLine, Download, Printer } from "lucide-react";
+import {
+  CalendarIcon,
+  Filter,
+  QrCode,
+  PenLine,
+  Download,
+  Printer,
+} from "lucide-react";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import type {
   AttendanceStatus,
@@ -59,16 +66,24 @@ export default function AttendanceHistory({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => ({
     from: subDays(new Date(), 7),
-    to: new Date()
+    to: new Date(),
   }));
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const fromDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
+  const fromDate = dateRange?.from
+    ? format(dateRange.from, "yyyy-MM-dd")
+    : undefined;
   const toDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
 
-  const { records, student, isLoading } = useAttendanceHistory(studentId, fromDate, toDate);
-  const qrData = student ? `${student.nisn}|${student.full_name}|${student.class_name}` : "";
+  const { records, student, isLoading } = useAttendanceHistory(
+    studentId,
+    fromDate,
+    toDate,
+  );
+  const qrData = student
+    ? `${student.nisn}|${student.full_name}|${student.class_name}`
+    : "";
 
   // Filter records
   const filteredRecords = useMemo(() => {
@@ -80,16 +95,12 @@ export default function AttendanceHistory({
 
     if (dateRange?.from) {
       const from = dateRange.from;
-      filtered = filtered.filter(
-        (r) => new Date(r.attendance_date) >= from
-      );
+      filtered = filtered.filter((r) => new Date(r.attendance_date) >= from);
     }
 
     if (dateRange?.to) {
       const to = dateRange.to;
-      filtered = filtered.filter(
-        (r) => new Date(r.attendance_date) <= to
-      );
+      filtered = filtered.filter((r) => new Date(r.attendance_date) <= to);
     }
 
     return filtered;
@@ -119,7 +130,7 @@ export default function AttendanceHistory({
         s[r.status]++;
       }
     });
-    const total = records.filter(r => r.status !== "belum_absen").length;
+    const total = records.filter((r) => r.status !== "belum_absen").length;
     s.hadir_percentage = total > 0 ? Math.round((s.hadir / total) * 100) : 0;
     return s;
   }, [records]);
@@ -177,7 +188,8 @@ export default function AttendanceHistory({
 
   const dateRangeLabel = useMemo(() => {
     if (!dateRange?.from) return "Pilih tanggal";
-    if (!dateRange.to) return format(dateRange.from, "dd MMM yyyy", { locale: localeId });
+    if (!dateRange.to)
+      return format(dateRange.from, "dd MMM yyyy", { locale: localeId });
     return `${format(dateRange.from, "dd MMM", { locale: localeId })} - ${format(dateRange.to, "dd MMM yyyy", { locale: localeId })}`;
   }, [dateRange]);
 
@@ -219,11 +231,29 @@ export default function AttendanceHistory({
           </CardDescription>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => downloadQRCode("student-qr", `QR-${student?.nisn || "Student"}.png`)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              downloadQRCode(
+                "student-qr",
+                `QR-${student?.nisn || "Student"}.png`,
+              )
+            }
+          >
             <Download className="mr-2 h-4 w-4" />
             Download QR
           </Button>
-          <Button variant="outline" size="sm" onClick={() => printElement("print-card", `Kartu Absensi - ${student?.full_name}`)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              printElement(
+                "print-card",
+                `Kartu Absensi - ${student?.full_name}`,
+              )
+            }
+          >
             <Printer className="mr-2 h-4 w-4" />
             Cetak Kartu
           </Button>
@@ -255,7 +285,11 @@ export default function AttendanceHistory({
           {/* Date range filter */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="justify-start gap-1.5 text-left font-normal">
+              <Button
+                variant="outline"
+                size="sm"
+                className="justify-start gap-1.5 text-left font-normal"
+              >
                 <CalendarIcon className="h-3.5 w-3.5" />
                 <span className="truncate">{dateRangeLabel}</span>
               </Button>
@@ -287,7 +321,7 @@ export default function AttendanceHistory({
             value={statusFilter}
             onValueChange={(val) => setStatusFilter(val || "all")}
           >
-            <SelectTrigger className="h-8 w-[160px]">
+            <SelectTrigger className="h-8 w-40">
               <SelectValue placeholder="Semua status" />
             </SelectTrigger>
             <SelectContent>
@@ -295,7 +329,7 @@ export default function AttendanceHistory({
               {(
                 Object.entries(ATTENDANCE_STATUS_LABELS) as [
                   AttendanceStatus,
-                  string
+                  string,
                 ][]
               ).map(([key, label]) => (
                 <SelectItem key={key} value={key}>
@@ -337,10 +371,7 @@ export default function AttendanceHistory({
                       {formatDate(record.attendance_date)}
                     </TableCell>
                     <TableCell>
-                      <AttendanceStatusBadge
-                        status={record.status}
-                        size="sm"
-                      />
+                      <AttendanceStatusBadge status={record.status} size="sm" />
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       {formatTime(record.scanned_at ?? record.recorded_at)}
@@ -360,7 +391,7 @@ export default function AttendanceHistory({
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden max-w-[200px] truncate md:table-cell">
+                    <TableCell className="hidden max-w-50 truncate md:table-cell">
                       {record.notes ?? "-"}
                     </TableCell>
                   </TableRow>
@@ -373,13 +404,15 @@ export default function AttendanceHistory({
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-muted-foreground">
-              Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredRecords.length)} dari {filteredRecords.length} catatan
+              Menampilkan {(currentPage - 1) * itemsPerPage + 1} -{" "}
+              {Math.min(currentPage * itemsPerPage, filteredRecords.length)}{" "}
+              dari {filteredRecords.length} catatan
             </span>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
                 Sebelumnya
@@ -387,7 +420,9 @@ export default function AttendanceHistory({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
               >
                 Selanjutnya
@@ -397,16 +432,28 @@ export default function AttendanceHistory({
         )}
 
         {/* Hidden elements for QR download and Printing */}
-        <div className="absolute opacity-0 pointer-events-none -z-10 left-[-9999px] top-[-9999px]">
-          <QRCodeCanvas id="student-qr" value={qrData || "-"} size={400} level="H" />
-          <div id="print-card" className="p-8 border-2 border-slate-800 rounded-xl text-center max-w-sm mx-auto bg-white text-slate-900">
+        <div className="absolute opacity-0 pointer-events-none -z-10 left-2499.75 top-2499.75">
+          <QRCodeCanvas
+            id="student-qr"
+            value={qrData || "-"}
+            size={400}
+            level="H"
+          />
+          <div
+            id="print-card"
+            className="p-8 border-2 border-slate-800 rounded-xl text-center max-w-sm mx-auto bg-white text-slate-900"
+          >
             <h2 className="text-2xl font-bold mb-2 uppercase">Kartu Absensi</h2>
-            <p className="text-lg font-semibold mb-6">{student?.full_name || "-"}</p>
+            <p className="text-lg font-semibold mb-6">
+              {student?.full_name || "-"}
+            </p>
             <div className="flex justify-center mb-6">
               <QRCodeCanvas value={qrData || "-"} size={250} level="H" />
             </div>
             <p className="text-md font-medium">NISN: {student?.nisn || "-"}</p>
-            <p className="text-md font-medium">Kelas: {student?.class_name || "-"}</p>
+            <p className="text-md font-medium">
+              Kelas: {student?.class_name || "-"}
+            </p>
           </div>
         </div>
       </CardContent>
