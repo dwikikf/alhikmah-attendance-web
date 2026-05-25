@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, QrCode as QrCodeIcon, Loader2, Calendar as CalendarIcon, Download, Printer } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import AttendanceHistory from "@/components/attendance/AttendanceHistory";
+import { downloadQRCode } from "@/utils/qrUtils";
+import { printElement } from "@/utils/printUtils";
 import type { Student } from "@/types";
 
 interface StudentDetailProps {
@@ -23,24 +25,9 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
   const [activeTab, setActiveTab] = useState("info");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownloadQR = async () => {
+  const handleDownloadQR = () => {
     if (!student) return;
-    try {
-      setIsDownloading(true);
-      const blob = await getStudentQRCode(studentId);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `qrcode_${student.nisn}.png`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error("Failed to download QR code", err);
-    } finally {
-      setIsDownloading(false);
-    }
+    downloadQRCode("student-detail-qr", `QR-${student.nisn}.png`);
   };
 
   if (isLoading) {
@@ -150,9 +137,13 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col items-center justify-center p-8 bg-muted/20 border rounded-lg max-w-sm mx-auto">
+                  <div id="student-print-card" className="flex flex-col items-center justify-center p-8 bg-muted/20 border rounded-lg max-w-sm mx-auto text-slate-900 bg-white">
+                    <div className="text-center mb-4 print:block hidden">
+                      <h2 className="text-2xl font-bold uppercase">Kartu Absensi</h2>
+                    </div>
                     <div className="bg-white p-4 rounded-xl shadow-sm mb-6 border">
-                      <QRCodeSVG 
+                      <QRCodeCanvas 
+                        id="student-detail-qr"
                         value={student.qr_code_data} 
                         size={200}
                         level="H"
@@ -169,11 +160,10 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
                   </div>
                   
                   <div className="flex justify-center gap-3 mt-6">
-                    <Button variant="outline" className="gap-2" onClick={handleDownloadQR} disabled={isDownloading}>
-                      {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 
-                      Download
+                    <Button variant="outline" className="gap-2" onClick={handleDownloadQR}>
+                      <Download className="h-4 w-4" /> Download
                     </Button>
-                    <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                    <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700" onClick={() => printElement("student-print-card", `Kartu Absensi - ${student.full_name}`)}>
                       <Printer className="h-4 w-4" /> Cetak Kartu
                     </Button>
                   </div>

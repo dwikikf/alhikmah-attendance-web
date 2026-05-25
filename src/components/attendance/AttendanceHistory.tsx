@@ -1,4 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useAttendanceHistory } from "@/hooks/useAttendanceHistory";
+import { downloadQRCode } from "@/utils/qrUtils";
+import { printElement } from "@/utils/printUtils";
+import { QRCodeCanvas } from "qrcode.react";
 import {
   Table,
   TableBody,
@@ -31,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Filter, QrCode, PenLine } from "lucide-react";
+import { CalendarIcon, Filter, QrCode, PenLine, Download, Printer } from "lucide-react";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import type {
   AttendanceStatus,
@@ -39,7 +43,7 @@ import type {
   AttendanceSummary,
 } from "@/types/attendance";
 import { ATTENDANCE_STATUS_LABELS } from "@/types/attendance";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 
@@ -49,15 +53,22 @@ interface AttendanceHistoryProps {
 }
 
 export default function AttendanceHistory({
-  studentId: _studentId,
+  studentId,
   className,
 }: AttendanceHistoryProps) {
-  // Mock empty data — will be replaced by React Query hook
-  const records: AttendanceRecord[] = [];
-  const isLoading = false;
-
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => ({
+    from: subDays(new Date(), 7),
+    to: new Date()
+  }));
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const fromDate = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
+  const toDate = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
+
+  const { records, student, isLoading } = useAttendanceHistory(studentId, fromDate, toDate);
+  const qrData = student ? `${student.nisn}|${student.full_name}|${student.class_name}` : "";
 
   // Filter records
   const filteredRecords = useMemo(() => {
@@ -83,6 +94,17 @@ export default function AttendanceHistory({
 
     return filtered;
   }, [records, statusFilter, dateRange]);
+
+  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+  const paginatedRecords = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredRecords.slice(start, start + itemsPerPage);
+  }, [filteredRecords, currentPage, itemsPerPage]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, dateRange]);
 
   // Calculate summary from all records (not filtered)
   const summary: AttendanceSummary = useMemo(() => {
@@ -187,13 +209,25 @@ export default function AttendanceHistory({
 
   return (
     <Card className={cn(className)}>
-      <CardHeader>
-        <CardTitle>Riwayat Kehadiran</CardTitle>
-        <CardDescription>
-          {totalRecords > 0
-            ? `Total ${totalRecords} catatan kehadiran`
-            : "Belum ada catatan kehadiran"}
-        </CardDescription>
+      <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <CardTitle>Riwayat Kehadiran</CardTitle>
+          <CardDescription>
+            {totalRecords > 0
+              ? `Total ${totalRecords} catatan kehadiran`
+              : "Belum ada catatan kehadiran"}
+          </CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => downloadQRCode("student-qr", `QR-${student?.nisn || "Student"}.png`)}>
+            <Download className="mr-2 h-4 w-4" />
+            Download QR
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => printElement("print-card", `Kartu Absensi - ${student?.full_name}`)}>
+            <Printer className="mr-2 h-4 w-4" />
+            Cetak Kartu
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary stats */}
@@ -287,7 +321,7 @@ export default function AttendanceHistory({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRecords.length === 0 ? (
+              {paginatedRecords.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -297,7 +331,7 @@ export default function AttendanceHistory({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredRecords.map((record) => (
+                paginatedRecords.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell className="font-medium">
                       {formatDate(record.attendance_date)}
@@ -334,6 +368,46 @@ export default function AttendanceHistory({
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-muted-foreground">
+              Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredRecords.length)} dari {filteredRecords.length} catatan
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Sebelumnya
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Selanjutnya
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Hidden elements for QR download and Printing */}
+        <div className="absolute opacity-0 pointer-events-none -z-10 left-[-9999px] top-[-9999px]">
+          <QRCodeCanvas id="student-qr" value={qrData || "-"} size={400} level="H" />
+          <div id="print-card" className="p-8 border-2 border-slate-800 rounded-xl text-center max-w-sm mx-auto bg-white text-slate-900">
+            <h2 className="text-2xl font-bold mb-2 uppercase">Kartu Absensi</h2>
+            <p className="text-lg font-semibold mb-6">{student?.full_name || "-"}</p>
+            <div className="flex justify-center mb-6">
+              <QRCodeCanvas value={qrData || "-"} size={250} level="H" />
+            </div>
+            <p className="text-md font-medium">NISN: {student?.nisn || "-"}</p>
+            <p className="text-md font-medium">Kelas: {student?.class_name || "-"}</p>
+          </div>
         </div>
       </CardContent>
     </Card>
