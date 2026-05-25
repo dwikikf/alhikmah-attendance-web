@@ -71,12 +71,12 @@ export default function App() {
                       <Route element={<PrivateRoute allowedRoles={['admin', 'teacher']} />}>
                         <Route path="/students" element={<StudentsPage />} />
                         <Route path="/students/:id" element={<StudentsPage />} />
+                        <Route path="/classes" element={<ClassesPage />} />
+                        <Route path="/classes/:id" element={<ClassesPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                       </Route>
 
                       <Route element={<PrivateRoute allowedRoles={['admin']} />}>
-                        <Route path="/classes" element={<ClassesPage />} />
-                        <Route path="/classes/:id" element={<ClassesPage />} />
                         <Route path="/users" element={<UsersPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                       </Route>

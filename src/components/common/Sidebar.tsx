@@ -53,7 +53,7 @@ const menuItems: MenuItem[] = [
     label: "Kelas",
     path: "/classes",
     icon: School,
-    roles: ["admin"],
+    roles: ["admin", "teacher"],
   },
   {
     label: "Pengguna",

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import { useUsers } from "@/queries/useUserQuery";
 import type { Class, CreateClassDto, UpdateClassDto } from "@/types";
 
@@ -56,11 +57,18 @@ export default function ClassForm({
   const updateMutation = useUpdateClass();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const { data: usersData, isLoading: isLoadingUsers } = useUsers({
-    role: "teacher",
-    is_active: true,
-  });
-  const teachers = usersData?.data || [];
+  const { user } = useAuth();
+  const isTeacher = user?.role === "teacher";
+
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers(
+    { role: "teacher", is_active: true },
+    { enabled: !isTeacher }
+  );
+  
+  let teachers = usersData?.data || [];
+  if (isTeacher && user) {
+    teachers = [{ id: user.id, full_name: (user as any).full_name || user.name || "Saya (Guru)" } as any];
+  }
 
   const {
     register,
@@ -72,7 +80,7 @@ export default function ClassForm({
     resolver: zodResolver(classSchema),
     defaultValues: {
       class_name: initialData?.class_name || "",
-      teacher_id: initialData?.teacher_id || "",
+      teacher_id: initialData?.teacher_id || (isTeacher && user ? user.id : ""),
       academic_year: initialData?.academic_year || "2026/2027",
       capacity: initialData?.capacity || 40,
       description: initialData?.description || "",
@@ -172,7 +180,7 @@ export default function ClassForm({
               onValueChange={(val: string) =>
                 setValue("teacher_id", val, { shouldValidate: true })
               }
-              disabled={isPending || isLoadingUsers}
+              disabled={isPending || isLoadingUsers || isTeacher}
             >
               <SelectTrigger>
                 <SelectValue

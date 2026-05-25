@@ -10,10 +10,11 @@ export const userKeys = {
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
-export function useUsers(params?: UserQueryParams) {
+export function useUsers(params?: UserQueryParams, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: userKeys.list(params),
     queryFn: () => userService.getUsers(params),
+    ...options,
   });
 }
 
