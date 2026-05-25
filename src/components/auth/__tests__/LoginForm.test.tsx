@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@/utils/test-utils';
+import { render } from '@/utils/test-utils';
+// @ts-expect-error - testing library types might be missing or mismatched
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginForm from '../LoginForm';
 import userEvent from '@testing-library/user-event';
 import { useAuth } from '@/hooks/useAuth';
