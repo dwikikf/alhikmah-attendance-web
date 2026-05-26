@@ -27,7 +27,7 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
 
   const handleDownloadQR = () => {
     if (!student) return;
-    downloadQRCode("student-detail-qr", `QR-${student.nisn}.png`);
+    downloadQRCode("student-detail-qr", `${student.nisn}_${student.full_name}.png`);
   };
 
   if (isLoading) {
@@ -145,9 +145,9 @@ export default function StudentDetail({ studentId, onBack, onEdit }: StudentDeta
                       <QRCodeCanvas 
                         id="student-detail-qr"
                         value={student.qr_code_data} 
-                        size={200}
-                        level="H"
-                        includeMargin={false}
+                        size={256}
+                        level="M"
+                        includeMargin={true}
                       />
                     </div>
                     <div className="text-center space-y-1 w-full">
