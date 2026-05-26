@@ -13,8 +13,7 @@ export const exportReport = async (payload: ExportRequest, filename: string) => 
 
     // Create a blob URL and trigger download
     const blob = new Blob([res.data], { 
-      type: payload.format === 'pdf' ? 'application/pdf' : 
-            payload.format === 'excel' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 
+      type: payload.format === 'excel' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 
             'text/csv' 
     });
     const url = window.URL.createObjectURL(blob);

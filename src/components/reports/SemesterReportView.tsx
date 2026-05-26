@@ -41,6 +41,9 @@ export default function SemesterReportView() {
     return Array.from(years).sort().reverse();
   }, [availableClasses]);
 
+  const selectedClass = availableClasses.find(c => c.id === classId);
+  const className = selectedClass ? selectedClass.class_name : classId;
+
   useEffect(() => {
     if (academicYears.length > 0 && (!academicYear || !academicYears.includes(academicYear))) {
       setAcademicYear(academicYears[0]);
@@ -80,7 +83,7 @@ export default function SemesterReportView() {
                 : "text-red-600",
           )}
         >
-          {row.attendance_percentage}%
+          {Number(row.attendance_percentage).toFixed(2)}%
         </span>
       ),
     },
@@ -136,7 +139,7 @@ export default function SemesterReportView() {
             classId={classId}
             semester={semester}
             academicYear={academicYear}
-            filename={`Laporan_Semester_${semester}_${classId}_${academicYear.replace("/", "-")}`}
+            filename={`Laporan Kehadiran Semester Kelas ${className}`}
           />
         </div>
       </div>
@@ -167,7 +170,7 @@ export default function SemesterReportView() {
                       Rata-rata Kehadiran
                     </span>
                     <span className="font-bold text-emerald-600 text-lg">
-                      {report.summary.avg_attendance}%
+                      {Number(report.summary.avg_attendance).toFixed(2)}%
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-2">

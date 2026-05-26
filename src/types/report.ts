@@ -117,8 +117,9 @@ export interface ReportQueryParams {
 export interface ExportRequest {
   report_type: ReportType;
   class_id: string;
+  date?: string;
   month?: string;
   semester?: string;
   academic_year?: string;
-  format: "csv" | "excel" | "pdf";
+  format: "csv" | "excel";
 }

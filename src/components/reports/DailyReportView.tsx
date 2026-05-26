@@ -46,6 +46,9 @@ export default function DailyReportView() {
     return c.teacher_id === user?.id;
   }) || [];
 
+  const selectedClass = availableClasses.find(c => c.id === classId);
+  const className = selectedClass ? selectedClass.class_name : classId;
+
   // Fetch report data
   const {
     data: report,
@@ -146,7 +149,8 @@ export default function DailyReportView() {
           <ReportExporter
             reportType="harian"
             classId={classId}
-            filename={`Laporan_Harian_${classId}_${format(date, "yyyyMMdd")}`}
+            date={format(date, "yyyy-MM-dd")}
+            filename={`Laporan Kehadiran Harian Kelas ${className}`}
           />
         </div>
       </div>
@@ -171,7 +175,7 @@ export default function DailyReportView() {
                 <CardDescription>
                   Persentase:{" "}
                   <span className="font-semibold text-foreground">
-                    {report?.summary?.hadir_percentage ?? 0}%
+                    {Number(report?.summary?.hadir_percentage ?? 0).toFixed(2)}%
                   </span>
                 </CardDescription>
               </CardHeader>

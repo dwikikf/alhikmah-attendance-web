@@ -15,6 +15,7 @@ import type { ReportType } from "@/types/report";
 interface ReportExporterProps {
   reportType: ReportType;
   classId: string;
+  date?: string;
   month?: string;
   semester?: string;
   academicYear?: string;
@@ -24,6 +25,7 @@ interface ReportExporterProps {
 export default function ReportExporter({ 
   reportType, 
   classId, 
+  date,
   month, 
   semester, 
   academicYear,
@@ -31,11 +33,12 @@ export default function ReportExporter({
 }: ReportExporterProps) {
   const [isExporting, setIsExporting] = useState<string | null>(null);
 
-  const handleExport = async (format: "csv" | "excel" | "pdf") => {
+  const handleExport = async (format: "csv" | "excel") => {
     setIsExporting(format);
     await exportReport({
       report_type: reportType,
       class_id: classId,
+      date,
       month,
       semester,
       academic_year: academicYear,
@@ -59,10 +62,6 @@ export default function ReportExporter({
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>Pilih Format</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => handleExport("pdf")} className="gap-2 cursor-pointer">
-          <FileText className="h-4 w-4 text-red-500" />
-          <span>PDF Document</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport("excel")} className="gap-2 cursor-pointer">
           <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
           <span>Excel (.xlsx)</span>

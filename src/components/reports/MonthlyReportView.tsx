@@ -42,6 +42,9 @@ export default function MonthlyReportView() {
     return c.teacher_id === user?.id;
   }) || [];
 
+  const selectedClass = availableClasses.find(c => c.id === classId);
+  const className = selectedClass ? selectedClass.class_name : classId;
+
   const monthParam = format(date, "yyyy-MM");
 
   // Fetch report data
@@ -76,7 +79,7 @@ export default function MonthlyReportView() {
                 : "text-red-600",
           )}
         >
-          {row.attendance_percentage}%
+          {Number(row.attendance_percentage).toFixed(2)}%
         </span>
       ),
     },
@@ -136,7 +139,7 @@ export default function MonthlyReportView() {
             reportType="bulanan"
             classId={classId}
             month={monthParam}
-            filename={`Laporan_Bulanan_${classId}_${monthParam}`}
+            filename={`Laporan Kehadiran Bulanan Kelas ${className}`}
           />
         </div>
       </div>
@@ -163,7 +166,7 @@ export default function MonthlyReportView() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-emerald-600">
-                  {report.summary.avg_hadir_percentage}%
+                  {Number(report.summary.avg_hadir_percentage).toFixed(2)}%
                 </div>
               </CardContent>
             </Card>
