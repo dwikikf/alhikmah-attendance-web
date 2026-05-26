@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { useClass, useClassStudents } from "@/queries/useClassQuery";
@@ -8,6 +9,8 @@ import { ArrowLeft, Users, Loader2, BookOpen, User, Download, FileSpreadsheet } 
 import DataTable from "@/components/common/DataTable";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import type { Class, ClassDetail as ClassDetailType } from "@/types";
+import api from "@/utils/api";
+import { toast } from "sonner";
 
 interface ClassDetailProps {
   classId: string;
@@ -22,6 +25,53 @@ export default function ClassDetail({ classId, onBack, onEdit }: ClassDetailProp
     class_id: classId,
     date: format(new Date(), "yyyy-MM-dd"),
   });
+
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [isExportingQR, setIsExportingQR] = useState(false);
+
+  const handleExportExcel = async () => {
+    try {
+      setIsExportingExcel(true);
+      const response = await api.get(`/classes/${classId}/export-excel`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Data_Siswa_${classData?.class_name}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Berhasil mengekspor Excel!");
+    } catch (err) {
+      toast.error("Gagal mengekspor Excel");
+    } finally {
+      setIsExportingExcel(false);
+    }
+  };
+
+  const handleExportQR = async () => {
+    try {
+      setIsExportingQR(true);
+      const response = await api.get(`/classes/${classId}/export-qrcode`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `QRCode_${classData?.class_name}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Berhasil mengunduh ZIP QR Code!");
+    } catch (err) {
+      toast.error("Gagal mengunduh QR Code");
+    } finally {
+      setIsExportingQR(false);
+    }
+  };
 
   const isLoading = isLoadingClass || isLoadingStudents || isLoadingAttendance;
   const error = classError || studentsError;
@@ -139,11 +189,25 @@ export default function ClassDetail({ classId, onBack, onEdit }: ClassDetailProp
               <CardTitle className="text-lg">Daftar Siswa</CardTitle>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                <Download className="h-3 w-3" /> QR Codes (PDF)
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2 h-8 text-xs"
+                onClick={handleExportQR}
+                disabled={isExportingQR}
+              >
+                {isExportingQR ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+                QR Codes (ZIP)
               </Button>
-              <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                <FileSpreadsheet className="h-3 w-3" /> Export Excel
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2 h-8 text-xs"
+                onClick={handleExportExcel}
+                disabled={isExportingExcel}
+              >
+                {isExportingExcel ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
+                Export Excel
               </Button>
             </div>
           </CardHeader>
