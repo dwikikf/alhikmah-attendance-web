@@ -30,21 +30,7 @@ export function useAttendanceHistory(studentId: string, fromDate?: string, toDat
   });
 
   return {
-    records: ((reportData?.data as any)?.daily_records || []).map((r: any, i: number) => ({
-      id: String(i),
-      student_id: studentId,
-      student_name: studentData?.data?.full_name || "",
-      nisn: studentData?.data?.nisn || "",
-      class_id: studentData?.data?.class_id || "",
-      class_name: studentData?.data?.class_name || "",
-      attendance_date: r.date,
-      status: r.status,
-      scanned_at: r.scanned_at,
-      recorded_at: r.scanned_at || new Date().toISOString(),
-      is_manual: false,
-      notes: null,
-      recorded_by: "",
-    })) as AttendanceRecord[],
+    records: ((reportData?.data as any)?.records || []) as AttendanceRecord[],
     summary: reportData?.data?.summary || { hadir: 0, izin: 0, sakit: 0, tanpa_keterangan: 0, hadir_percentage: 0 },
     student: studentData?.data,
     isLoading: isLoadingReport || isLoadingStudent,

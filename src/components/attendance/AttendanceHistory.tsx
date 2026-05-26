@@ -1,7 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAttendanceHistory } from "@/hooks/useAttendanceHistory";
-import { downloadQRCode } from "@/utils/qrUtils";
-import { printElement } from "@/utils/printUtils";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   Table,
@@ -40,8 +38,6 @@ import {
   Filter,
   QrCode,
   PenLine,
-  Download,
-  Printer,
 } from "lucide-react";
 import AttendanceStatusBadge from "@/components/attendance/AttendanceStatus";
 import type {
@@ -81,9 +77,6 @@ export default function AttendanceHistory({
     fromDate,
     toDate,
   );
-  const qrData = student
-    ? `${student.nisn}|${student.full_name}|${student.class_name}`
-    : "";
 
   // Filter records
   const filteredRecords = useMemo(() => {
@@ -229,34 +222,6 @@ export default function AttendanceHistory({
               ? `Total ${totalRecords} catatan kehadiran`
               : "Belum ada catatan kehadiran"}
           </CardDescription>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              downloadQRCode(
-                "student-qr",
-                `QR-${student?.nisn || "Student"}.png`,
-              )
-            }
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download QR
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              printElement(
-                "print-card",
-                `Kartu Absensi - ${student?.full_name}`,
-              )
-            }
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            Cetak Kartu
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -431,31 +396,6 @@ export default function AttendanceHistory({
           </div>
         )}
 
-        {/* Hidden elements for QR download and Printing */}
-        <div className="absolute opacity-0 pointer-events-none -z-10 left-2499.75 top-2499.75">
-          <QRCodeCanvas
-            id="student-qr"
-            value={qrData || "-"}
-            size={400}
-            level="H"
-          />
-          <div
-            id="print-card"
-            className="p-8 border-2 border-slate-800 rounded-xl text-center max-w-sm mx-auto bg-white text-slate-900"
-          >
-            <h2 className="text-2xl font-bold mb-2 uppercase">Kartu Absensi</h2>
-            <p className="text-lg font-semibold mb-6">
-              {student?.full_name || "-"}
-            </p>
-            <div className="flex justify-center mb-6">
-              <QRCodeCanvas value={qrData || "-"} size={250} level="H" />
-            </div>
-            <p className="text-md font-medium">NISN: {student?.nisn || "-"}</p>
-            <p className="text-md font-medium">
-              Kelas: {student?.class_name || "-"}
-            </p>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
