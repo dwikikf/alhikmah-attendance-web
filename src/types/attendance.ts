@@ -85,9 +85,7 @@ export interface DailyAttendance {
 
 /** QR scan request payload matching PRD */
 export interface QRScanRequest {
-  qr_code_data: string; // "NISN|FullName|ClassName"
-  class_id: string;
-  scanned_at: string; // ISO timestamp
+  nisn: string;
 }
 
 /** Manual attendance entry for a single student */
@@ -99,9 +97,9 @@ export interface ManualAttendanceEntry {
 
 /** Manual attendance request payload matching PRD */
 export interface ManualAttendanceRequest {
-  class_id: string;
-  attendance_date: string; // YYYY-MM-DD
-  students: ManualAttendanceEntry[];
+  student_id: string;
+  status: AttendanceStatus;
+  notes?: string;
 }
 
 /** Update attendance request */

@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Html5Qrcode, Html5QrcodeSupportedFormats, type CameraDevice } from "html5-qrcode";
+import {
+  Html5Qrcode,
+  Html5QrcodeSupportedFormats,
+  type CameraDevice,
+} from "html5-qrcode";
 import { parseQRData, type QRData } from "@/utils/qrcode";
 import { playSuccessBeep, playErrorBuzzer } from "@/utils/audio";
 import { Card } from "@/components/ui/card";
@@ -59,46 +63,62 @@ export default function QRScanner({
     // We ignore these to prevent spamming console
   };
 
-  const startScanner = useCallback(async (cameraId?: string) => {
-    if (scannerRef.current?.isScanning) {
-      await scannerRef.current.stop();
-    }
-
-    try {
-      const scanner = new Html5Qrcode(regionId, {
-        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-        verbose: false,
-      });
-      scannerRef.current = scanner;
-
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-      };
-
-      if (cameraId) {
-        await scanner.start(cameraId, config, handleScanSuccess, handleScanError);
-      } else {
-        await scanner.start(
-          { facingMode: "environment" },
-          config,
-          handleScanSuccess,
-          handleScanError,
-        );
+  const startScanner = useCallback(
+    async (cameraId?: string) => {
+      // Ensure element exists before starting
+      const el = document.getElementById(regionId);
+      if (!el) {
+        console.warn(`Element with id ${regionId} not found yet, retrying...`);
+        return;
       }
-      setIsScanning(true);
-    } catch (err) {
-      console.error("Failed to start scanner", err);
-      toast.error("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
-      setIsScanning(false);
-    }
-  }, [handleScanSuccess]);
+
+      if (scannerRef.current?.isScanning) {
+        await scannerRef.current.stop();
+      }
+
+      try {
+        const scanner = new Html5Qrcode(regionId, {
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+          verbose: false,
+        });
+        scannerRef.current = scanner;
+
+        const config = {
+          fps: 10,
+          aspectRatio: 1.0, // Match the square aspect ratio of the container
+          disableFlip: false,
+        };
+
+        if (cameraId) {
+          await scanner.start(
+            cameraId,
+            config,
+            handleScanSuccess,
+            handleScanError,
+          );
+        } else {
+          await scanner.start(
+            { facingMode: "environment" },
+            config,
+            handleScanSuccess,
+            handleScanError,
+          );
+        }
+        setIsScanning(true);
+      } catch (err) {
+        console.error("Failed to start scanner", err);
+        toast.error("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
+        setIsScanning(false);
+      }
+    },
+    [handleScanSuccess],
+  );
 
   const stopScanner = async () => {
     if (scannerRef.current?.isScanning) {
       try {
         await scannerRef.current.stop();
+        scannerRef.current.clear();
         setIsScanning(false);
       } catch (err) {
         console.error("Failed to stop scanner", err);
@@ -107,9 +127,13 @@ export default function QRScanner({
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Request permission and get cameras
     Html5Qrcode.getCameras()
       .then((cameras) => {
+        if (!mounted) return;
+        
         if (cameras && cameras.length > 0) {
           setHasPermission(true);
           setDevices(cameras);
@@ -119,17 +143,25 @@ export default function QRScanner({
           );
           const initialCameraId = backCamera ? backCamera.id : cameras[0].id;
           setSelectedCamera(initialCameraId);
-          startScanner(initialCameraId);
+          
+          // Wait a brief moment to ensure React has painted the DOM element
+          setTimeout(() => {
+            if (mounted && document.getElementById(regionId)) {
+              startScanner(initialCameraId);
+            }
+          }, 100);
         } else {
           setHasPermission(false);
         }
       })
       .catch((err) => {
+        if (!mounted) return;
         setHasPermission(false);
         console.error("Error getting cameras", err);
       });
 
     return () => {
+      mounted = false;
       stopScanner();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,11 +169,11 @@ export default function QRScanner({
 
   const switchCamera = async () => {
     if (devices.length <= 1) return;
-    
+
     const currentIndex = devices.findIndex((c) => c.id === selectedCamera);
     const nextIndex = (currentIndex + 1) % devices.length;
     const nextCameraId = devices[nextIndex].id;
-    
+
     setSelectedCamera(nextCameraId);
     await startScanner(nextCameraId);
   };
@@ -150,19 +182,25 @@ export default function QRScanner({
     return (
       <Card className="flex flex-col items-center justify-center p-6 text-center h-64 border-dashed bg-gray-50/50">
         <Camera className="h-12 w-12 text-gray-400 mb-4" />
-        <p className="text-sm font-medium text-gray-900">Akses Kamera Ditolak</p>
+        <p className="text-sm font-medium text-gray-900">
+          Akses Kamera Ditolak
+        </p>
         <p className="text-xs text-gray-500 mt-1 max-w-sm">
-          Aplikasi membutuhkan akses kamera untuk scan QR Code. Silakan izinkan akses kamera di pengaturan browser Anda.
+          Aplikasi membutuhkan akses kamera untuk scan QR Code. Silakan izinkan
+          akses kamera di pengaturan browser Anda.
         </p>
       </Card>
     );
   }
 
   return (
-    <Card className="overflow-hidden relative bg-black shadow-lg ring-1 ring-black/5">
-      {/* Scanner container */}
-      <div id={regionId} className="w-full aspect-square md:aspect-video object-cover" />
-      
+    <div className="w-full max-w-md mx-auto overflow-hidden relative bg-black shadow-lg ring-1 ring-black/5 rounded-xl">
+      {/* Scanner container wrapped to isolate DOM mutations from React */}
+      <div 
+        className="w-full aspect-square object-cover mx-auto bg-black"
+        dangerouslySetInnerHTML={{ __html: `<div id="${regionId}" style="width: 100%; height: 100%;"></div>` }}
+      />
+
       {/* UI Overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4">
         <div className="flex justify-between items-start">
@@ -171,7 +209,7 @@ export default function QRScanner({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            {isScanning ? "Scanner Aktif" : "Scanner Berhenti"}
+            <span>{isScanning ? "Scanner Aktif" : "Scanner Berhenti"}</span>
           </div>
 
           {devices.length > 1 && (
@@ -187,9 +225,15 @@ export default function QRScanner({
           )}
         </div>
 
-        {/* Scan target guide */}
-        <div className="flex-1 flex items-center justify-center pointer-events-none opacity-50">
-           {/* Custom scan area corners */}
+        <div className="flex-1 flex items-center justify-center pointer-events-none p-8">
+          <div className="relative w-full max-w-[280px] aspect-square">
+            <div className="absolute top-0 left-0 w-1/4 h-1/4 border-t-4 border-l-4 border-amber-400 rounded-tl-xl animate-pulse"></div>
+            <div className="absolute top-0 right-0 w-1/4 h-1/4 border-t-4 border-r-4 border-amber-400 rounded-tr-xl animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-1/4 h-1/4 border-b-4 border-l-4 border-amber-400 rounded-bl-xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-1/4 h-1/4 border-b-4 border-r-4 border-amber-400 rounded-br-xl animate-pulse"></div>
+            
+            <div className="absolute left-4 right-4 h-0.5 bg-amber-400 shadow-[0_0_12px_3px_rgba(251,191,36,0.8)] scanner-laser"></div>
+          </div>
         </div>
 
         <p className="text-center text-xs text-white/70 bg-black/40 backdrop-blur-sm rounded-full py-1.5 px-4 self-center mt-auto pointer-events-auto">
@@ -200,17 +244,42 @@ export default function QRScanner({
       <style>{`
         #qr-reader {
           border: none !important;
+          overflow: hidden;
         }
         #qr-reader img {
           display: none !important;
         }
         #qr-reader__scan_region {
           background-color: #000;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        #qr-reader__scan_region video {
+          object-fit: cover !important;
+          width: 100% !important;
+          height: 100% !important;
+        }
+        #qr-reader__scan_region canvas {
+          display: none !important;
         }
         #qr-reader__dashboard {
           display: none !important;
         }
+
+        .scanner-laser {
+          animation: scan-laser 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes scan-laser {
+          0% {
+            top: 5%;
+          }
+          100% {
+            top: 95%;
+          }
+        }
       `}</style>
-    </Card>
+    </div>
   );
 }

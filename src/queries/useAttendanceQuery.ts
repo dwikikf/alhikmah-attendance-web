@@ -40,7 +40,7 @@ export const useRecordQRScan = () => {
     onSuccess: (_, variables) => {
       // Invalidate the class daily attendance
       queryClient.invalidateQueries({
-        queryKey: ["attendance", "class", variables.class_id],
+        queryKey: ["attendance"],
       });
     },
   });
@@ -57,10 +57,10 @@ export const useRecordManualAttendance = () => {
       const res = await api.post("/attendances/manual", payload);
       return res.data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       // Invalidate the class daily attendance
       queryClient.invalidateQueries({
-        queryKey: ["attendance", "class", variables.class_id, variables.attendance_date],
+        queryKey: ["attendance"],
       });
     },
   });

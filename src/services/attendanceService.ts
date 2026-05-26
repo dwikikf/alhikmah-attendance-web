@@ -34,12 +34,12 @@ export async function recordQRScan(
 
 /**
  * POST /attendances/manual
- * Record manual attendance for multiple students at once.
+ * Record manual attendance for a single student.
  */
 export async function recordManualAttendance(
   payload: ManualAttendanceRequest,
-): Promise<ApiResponse<AttendanceRecord[]>> {
-  const response = await api.post<ApiResponse<AttendanceRecord[]>>(
+): Promise<ApiResponse<AttendanceRecord>> {
+  const response = await api.post<ApiResponse<AttendanceRecord>>(
     "/attendances/manual",
     payload,
   );
