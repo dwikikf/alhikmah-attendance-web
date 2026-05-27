@@ -106,3 +106,25 @@ export async function getStudentQRCode(id: string): Promise<Blob> {
   });
   return response.data as Blob;
 }
+
+// ─── Import Students ───────────────────────────────────────────────────────────
+
+/**
+ * POST /students/import
+ * Import students from a CSV file into a specific class.
+ */
+export async function importStudents(
+  classId: string,
+  file: File,
+): Promise<ApiResponse<void>> {
+  const formData = new FormData();
+  formData.append("class_id", classId);
+  formData.append("file", file);
+
+  const response = await api.post<ApiResponse<void>>("/students/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+}

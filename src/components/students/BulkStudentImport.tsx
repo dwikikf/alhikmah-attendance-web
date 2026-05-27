@@ -24,11 +24,19 @@ import {
   CheckCircle2,
   Loader2,
   X,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import api from "@/utils/api";
-import type { BulkImportResult } from "@/types";
+import { useClasses } from "@/queries/useClassQuery";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { importStudents } from "@/services/studentService";
 
 interface BulkStudentImportProps {
   onSuccess?: () => void;
@@ -37,7 +45,6 @@ interface BulkStudentImportProps {
 interface ParsedStudentRow {
   nisn: string;
   full_name: string;
-  class_name: string;
   gender: string;
   row: number;
 }
@@ -47,20 +54,20 @@ export default function BulkStudentImport({
 }: BulkStudentImportProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [classId, setClassId] = useState<string>("");
   const [parsedData, setParsedData] = useState<ParsedStudentRow[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [importResult, setImportResult] = useState<BulkImportResult | null>(
-    null,
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: classesData, isLoading: isLoadingClasses } = useClasses();
 
   const resetState = () => {
     setFile(null);
     setParsedData([]);
     setErrors([]);
     setIsUploading(false);
-    setImportResult(null);
+    setClassId("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -70,6 +77,21 @@ export default function BulkStudentImport({
     setIsOpen(open);
     if (!open) {
       resetState();
+    }
+  };
+
+  const handleDownloadSample = () => {
+    const csvContent = "nisn,nama,gender\n1234567890,Budi Santoso,L\n0987654321,Siti Aminah,P";
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "format_import_siswa.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -102,12 +124,8 @@ export default function BulkStudentImport({
 
       // Check header
       const header = lines[0].toLowerCase();
-      if (
-        !header.includes("nisn") ||
-        !header.includes("nama") ||
-        !header.includes("kelas")
-      ) {
-        setErrors(["Header CSV harus mengandung 'nisn', 'nama', dan 'kelas'"]);
+      if (!header.includes("nisn") || !header.includes("nama") || !header.includes("gender")) {
+        setErrors(["Header CSV harus mengandung 'nisn', 'nama', dan 'gender'"]);
         return;
       }
 
@@ -115,26 +133,38 @@ export default function BulkStudentImport({
       const newErrors: string[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        // Handle basic CSV parsing (ignoring complex quotes for this simple implementation)
         const columns = lines[i].split(",");
         if (columns.length < 3) continue;
 
         const nisn = columns[0]?.trim();
         const full_name = columns[1]?.trim();
-        const class_name = columns[2]?.trim();
-        let gender = columns[3]?.trim().toLowerCase() || "laki-laki";
+        let gender = columns[2]?.trim().toUpperCase() || "";
 
-        if (!nisn || !full_name || !class_name) {
-          newErrors.push(`Baris ${i + 1}: NISN, Nama, dan Kelas wajib diisi`);
+        if (!nisn || !full_name) {
+          newErrors.push(`Baris ${i + 1}: NISN dan Nama wajib diisi`);
           continue;
         }
 
-        if (gender === "l" || gender === "laki" || gender === "laki-laki")
-          gender = "laki-laki";
-        else if (gender === "p" || gender === "perempuan") gender = "perempuan";
-        else gender = "laki-laki";
+        if (nisn.length !== 10) {
+          newErrors.push(`Baris ${i + 1}: NISN harus tepat 10 digit`);
+          continue;
+        }
 
-        rows.push({ nisn, full_name, class_name, gender, row: i + 1 });
+        if (full_name.length < 3) {
+          newErrors.push(`Baris ${i + 1}: Nama minimal 3 karakter`);
+          continue;
+        }
+
+        if (gender !== "L" && gender !== "P") {
+          newErrors.push(`Baris ${i + 1}: Gender harus berupa 'L' atau 'P'`);
+          continue;
+        }
+
+        // Frontend still maps 'L' and 'P' as required by internal props or just pass L/P if we send direct.
+        // Actually, since we upload the file, backend handles the raw text. 
+        // We just display it here. We can store it as L or P.
+        const displayGender = gender === "L" ? "laki-laki" : "perempuan";
+        rows.push({ nisn, full_name, gender: displayGender, row: i + 1 });
       }
 
       setParsedData(rows);
@@ -144,26 +174,22 @@ export default function BulkStudentImport({
   };
 
   const handleUpload = async () => {
-    if (parsedData.length === 0 || errors.length > 0) return;
+    if (!file || !classId || errors.length > 0) return;
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file!);
-
-      const res = await api.post<{ success: boolean; data: BulkImportResult }>(
-        "/students/bulk-import",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
-
-      setImportResult(res.data.data);
-      toast.success(`${res.data.data.success} data siswa berhasil diimpor`);
+      await importStudents(classId, file);
+      toast.success(`Data siswa berhasil diimpor`);
       if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error(error);
+      resetState();
+      setIsOpen(false);
+    } catch (error: any) {
+      // api.ts interceptor will handle the global toast message with the readable error
+      // but just in case we need a fallback:
+      const msg = error.response?.data?.message;
+      if (!msg) {
+        toast.error("Gagal mengimpor siswa");
+      }
     } finally {
       setIsUploading(false);
     }
@@ -177,71 +203,62 @@ export default function BulkStudentImport({
           Import CSV
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-162.5 max-h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Import Data Siswa Massal</DialogTitle>
           <DialogDescription>
-            Unggah file CSV dengan format:{" "}
+            Pilih kelas dan unggah file CSV dengan format:{" "}
             <code className="bg-muted px-1 py-0.5 rounded text-xs">
-              nisn,nama,kelas,jk
+              nisn,nama,gender
             </code>
-            . Pastikan nama kelas sesuai persis dengan data kelas di sistem.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto pr-2 space-y-4 my-4">
-          {importResult ? (
-            <div className="space-y-4">
-              <Alert className="bg-emerald-50 border-emerald-200">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                <AlertDescription className="text-emerald-700">
-                  Import selesai. {importResult.success} berhasil,{" "}
-                  {importResult.failed} gagal.
-                </AlertDescription>
-              </Alert>
-
-              {importResult.errors.length > 0 && (
-                <div className="border rounded-md mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16">Baris</TableHead>
-                        <TableHead>NISN</TableHead>
-                        <TableHead>Error</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {importResult.errors.map((err, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="text-xs text-muted-foreground">
-                            {err.row}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {err.nisn}
-                          </TableCell>
-                          <TableCell className="text-xs text-red-600">
-                            {err.message}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
+          <div className="flex flex-col sm:flex-row items-end gap-4">
+            <div className="flex flex-col gap-2 flex-1 w-full">
+              <label className="text-sm font-medium">Pilih Kelas</label>
+              <Select
+                value={classId}
+                onValueChange={setClassId}
+                disabled={isLoadingClasses}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih kelas untuk siswa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classesData?.data.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.class_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : !file ? (
+
+            <Button
+              variant="outline"
+              className="gap-2 w-full sm:w-auto"
+              onClick={handleDownloadSample}
+            >
+              <Download className="h-4 w-4" />
+              Download Format CSV
+            </Button>
+          </div>
+
+          {!file ? (
             <div
-              className="border-2 border-dashed rounded-lg p-12 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="border-2 border-dashed rounded-lg p-12 text-center hover:bg-muted/50 transition-colors cursor-pointer mt-4"
               onClick={() => fileInputRef.current?.click()}
             >
               <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
               <p className="text-sm font-medium">Klik untuk memilih file CSV</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Format kolom: nisn, nama, kelas, jk
+                Format kolom: nisn, nama, gender
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
                 <div className="flex items-center gap-3">
                   <FileText className="h-6 w-6 text-emerald-600" />
@@ -256,7 +273,12 @@ export default function BulkStudentImport({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={resetState}
+                  onClick={() => {
+                    setFile(null);
+                    setParsedData([]);
+                    setErrors([]);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
                   disabled={isUploading}
                 >
                   <X className="h-4 w-4" />
@@ -284,7 +306,7 @@ export default function BulkStudentImport({
                         <TableHead className="w-16">Baris</TableHead>
                         <TableHead>NISN</TableHead>
                         <TableHead>Nama</TableHead>
-                        <TableHead>Kelas</TableHead>
+                        <TableHead>Gender</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -296,11 +318,11 @@ export default function BulkStudentImport({
                           <TableCell className="font-mono text-xs">
                             {row.nisn}
                           </TableCell>
-                          <TableCell className="text-xs truncate max-w-37.5">
+                          <TableCell className="text-xs truncate max-w-[200px]">
                             {row.full_name}
                           </TableCell>
                           <TableCell className="text-xs">
-                            {row.class_name}
+                            {row.gender === "laki-laki" ? "L" : "P"}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -331,36 +353,31 @@ export default function BulkStudentImport({
         </div>
 
         <DialogFooter>
-          {importResult ? (
-            <Button onClick={() => setIsOpen(false)}>Selesai</Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => setIsOpen(false)}
-                disabled={isUploading}
-              >
-                Batal
-              </Button>
-              <Button
-                onClick={handleUpload}
-                disabled={
-                  !file ||
-                  errors.length > 0 ||
-                  parsedData.length === 0 ||
-                  isUploading
-                }
-                className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-              >
-                {isUploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" />
-                )}
-                Mulai Import
-              </Button>
-            </>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => setIsOpen(false)}
+            disabled={isUploading}
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={handleUpload}
+            disabled={
+              !file ||
+              !classId ||
+              errors.length > 0 ||
+              parsedData.length === 0 ||
+              isUploading
+            }
+            className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+          >
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            Mulai Import
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
