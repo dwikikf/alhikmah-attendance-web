@@ -61,6 +61,22 @@ export const useSemesterReport = (params: ReportQueryParams) => {
 /**
  * Force refresh mutations
  */
+export const useRefreshDailyReport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { class_id: string; date: string }) => {
+      const res = await api.get<{ success: boolean; data: DailyReport }>(
+        `/reports/daily?class_id=${params.class_id}&date=${params.date}&force_refresh=true`
+      );
+      return res.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["report", "daily", variables.class_id, variables.date]
+      });
+    }
+  });
+};
 export const useRefreshMonthlyReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
