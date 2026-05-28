@@ -102,7 +102,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Store tokens (fallback refreshToken to empty if not provided)
       setTokens({
         accessToken: response.token,
-        refreshToken: response.refresh_token || "",
       });
 
       // Handle remember me
@@ -152,7 +151,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const refreshResponse = await authService.refreshToken();
         setTokens({
           accessToken: refreshResponse.accessToken,
-          refreshToken: refreshResponse.refreshToken,
         });
         const user = await authService.getCurrentUser();
         dispatch({ type: "AUTH_SUCCESS", payload: user });
@@ -242,7 +240,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const refreshResponse = await authService.refreshToken();
         setTokens({
           accessToken: refreshResponse.accessToken,
-          refreshToken: refreshResponse.refreshToken,
         });
         // Re-trigger this effect by getting fresh user data
         const user = await authService.getCurrentUser();

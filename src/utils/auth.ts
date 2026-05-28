@@ -25,43 +25,22 @@ export function removeAccessToken(): void {
   localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
 }
 
-/**
- * Store refresh token in localStorage
- */
-export function setRefreshToken(token: string): void {
-  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
-}
+// Refresh token is now handled via HttpOnly Cookies, not stored in localStorage
 
 /**
- * Get refresh token from localStorage
+ * Store access token
  */
-export function getRefreshToken(): string | null {
-  return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-}
-
-/**
- * Remove refresh token from localStorage
- */
-export function removeRefreshToken(): void {
-  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-}
-
-/**
- * Store both tokens at once
- */
-export function setTokens(tokens: AuthTokens): void {
+export function setTokens(tokens: { accessToken: string }): void {
   setAccessToken(tokens.accessToken);
-  setRefreshToken(tokens.refreshToken);
 }
 
 /**
- * Get both tokens at once
+ * Get access token wrapper
  */
-export function getTokens(): AuthTokens | null {
+export function getTokens(): { accessToken: string } | null {
   const accessToken = getAccessToken();
-  const refreshToken = getRefreshToken();
-  if (!accessToken || !refreshToken) return null;
-  return { accessToken, refreshToken };
+  if (!accessToken) return null;
+  return { accessToken };
 }
 
 /**
@@ -69,7 +48,6 @@ export function getTokens(): AuthTokens | null {
  */
 export function removeTokens(): void {
   removeAccessToken();
-  removeRefreshToken();
   removeRememberMe();
 }
 

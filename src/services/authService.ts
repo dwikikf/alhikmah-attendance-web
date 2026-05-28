@@ -11,7 +11,6 @@ import type {
   User,
 } from "@/types/auth";
 import type { ApiResponse } from "@/types/api";
-import { getRefreshToken } from "@/utils/auth";
 
 const authService = {
   /**
@@ -25,7 +24,6 @@ const authService = {
     const data = response.data.data;
     return {
       token: data.token,
-      refresh_token: data.refresh_token,
       user: {
         ...data.user,
         name: data.user?.full_name || data.user?.name || "User",
@@ -49,14 +47,9 @@ const authService = {
    * Refresh access token using refresh token
    */
   async refreshToken(): Promise<RefreshTokenResponse> {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-      throw new Error("No refresh token available");
-    }
-
     const response = await api.post<RefreshTokenResponse>(
       API_ENDPOINTS.AUTH.REFRESH_TOKEN,
-      { refreshToken },
+      {},
     );
     return response.data;
   },

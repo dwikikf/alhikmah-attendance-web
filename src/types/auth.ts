@@ -31,7 +31,6 @@ export interface JWTPayload {
 /** Stored auth tokens */
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
 }
 
 /** Login request payload */
@@ -45,7 +44,6 @@ export interface LoginRequest {
 export interface LoginResponse {
   user: User;
   token: string;
-  refresh_token: string;
 }
 
 /** Refresh token request */
@@ -56,7 +54,6 @@ export interface RefreshTokenRequest {
 /** Refresh token response */
 export interface RefreshTokenResponse {
   accessToken: string;
-  refreshToken: string;
 }
 
 /** Password reset request */

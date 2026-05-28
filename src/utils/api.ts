@@ -9,7 +9,6 @@ import axios, {
 import { apiConfig, API_ENDPOINTS } from "@/config/api";
 import {
   getAccessToken,
-  getRefreshToken,
   setTokens,
   removeTokens,
   isTokenExpired,
@@ -43,7 +42,10 @@ function addRefreshSubscriber(callback: (token: string) => void): void {
 /**
  * Create and configure the main Axios instance
  */
-const api: AxiosInstance = axios.create(apiConfig);
+const api: AxiosInstance = axios.create({
+  ...apiConfig,
+  withCredentials: true,
+});
 
 /**
  * Request interceptor - Attach JWT token to outgoing requests
@@ -154,25 +156,23 @@ api.interceptors.response.use(
 );
 
 /**
- * Silently refresh the access token using the stored refresh token
+ * Silently refresh the access token using the stored refresh token in HttpOnly Cookie
  */
 async function refreshTokenSilently(): Promise<string | null> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return null;
-
   try {
     // Use a fresh axios instance to avoid interceptor loops
     const response = await axios.post<RefreshTokenResponse>(
       `${apiConfig.baseURL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
-      { refreshToken },
+      {},
       {
         headers: { "Content-Type": "application/json" },
         timeout: apiConfig.timeout,
+        withCredentials: true,
       },
     );
 
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
-    setTokens({ accessToken, refreshToken: newRefreshToken });
+    const { accessToken } = response.data as any; // Backend now only returns access_token
+    setTokens({ accessToken });
     return accessToken;
   } catch {
     return null;
