@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/utils/api";
 import type { 
   DailyReport, 
@@ -55,5 +55,42 @@ export const useSemesterReport = (params: ReportQueryParams) => {
       return res.data.data;
     },
     enabled: !!params.class_id && !!params.semester && !!params.academic_year,
+  });
+};
+
+/**
+ * Force refresh mutations
+ */
+export const useRefreshMonthlyReport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { class_id: string; month: string }) => {
+      const res = await api.get<{ success: boolean; data: MonthlyReport }>(
+        `/reports/monthly?class_id=${params.class_id}&month=${params.month}&force_refresh=true`
+      );
+      return res.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["report", "monthly", variables.class_id, variables.month]
+      });
+    }
+  });
+};
+
+export const useRefreshSemesterReport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { class_id: string; semester: string; academic_year: string }) => {
+      const res = await api.get<{ success: boolean; data: SemesterReport }>(
+        `/reports/semester?class_id=${params.class_id}&semester=${params.semester}&academic_year=${params.academic_year}&force_refresh=true`
+      );
+      return res.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["report", "semester", variables.class_id, variables.semester, variables.academic_year]
+      });
+    }
   });
 };

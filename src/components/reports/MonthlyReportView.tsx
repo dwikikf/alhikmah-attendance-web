@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import { useMonthlyReport } from "@/queries/useReportQuery";
+import { Calendar as CalendarIcon, Loader2, RefreshCw } from "lucide-react";
+import { useMonthlyReport, useRefreshMonthlyReport } from "@/queries/useReportQuery";
+import { toast } from "sonner";
 import { useClasses } from "@/queries/useClassQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,20 @@ export default function MonthlyReportView() {
     class_id: classId,
     month: monthParam,
   });
+
+  const { mutate: refreshReport, isPending: isRefreshing } = useRefreshMonthlyReport();
+
+  const handleRefresh = () => {
+    if (!classId || !monthParam) return;
+    refreshReport({ class_id: classId, month: monthParam }, {
+      onSuccess: () => {
+        toast.success("Data laporan berhasil diperbarui");
+      },
+      onError: () => {
+        toast.error("Gagal memperbarui data laporan");
+      }
+    });
+  };
 
   const columns = [
     { key: "nisn", header: "NISN" },
@@ -134,7 +149,16 @@ export default function MonthlyReportView() {
           </Popover>
         </div>
 
-        <div className="sm:ml-auto">
+        <div className="sm:ml-auto flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={!classId || !date || isRefreshing || isLoading}
+            className="bg-background"
+          >
+            <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
+            Perbarui
+          </Button>
           <ReportExporter
             reportType="bulanan"
             classId={classId}

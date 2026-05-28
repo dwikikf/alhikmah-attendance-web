@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loader2 } from "lucide-react";
-import { useSemesterReport } from "@/queries/useReportQuery";
+import { Loader2, RefreshCw } from "lucide-react";
+import { useSemesterReport, useRefreshSemesterReport } from "@/queries/useReportQuery";
+import { toast } from "sonner";
 import { useClasses } from "@/queries/useClassQuery";
 import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -60,6 +62,20 @@ export default function SemesterReportView() {
     semester,
     academic_year: academicYear,
   });
+
+  const { mutate: refreshReport, isPending: isRefreshing } = useRefreshSemesterReport();
+
+  const handleRefresh = () => {
+    if (!classId || !semester || !academicYear) return;
+    refreshReport({ class_id: classId, semester, academic_year: academicYear }, {
+      onSuccess: () => {
+        toast.success("Data laporan berhasil diperbarui");
+      },
+      onError: () => {
+        toast.error("Gagal memperbarui data laporan");
+      }
+    });
+  };
 
   const columns = [
     { key: "nisn", header: "NISN" },
@@ -133,7 +149,16 @@ export default function SemesterReportView() {
           </SelectContent>
         </Select>
 
-        <div className="sm:ml-auto">
+        <div className="sm:ml-auto flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={!classId || !semester || !academicYear || isRefreshing || isLoading}
+            className="bg-background"
+          >
+            <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
+            Perbarui
+          </Button>
           <ReportExporter
             reportType="semesteran"
             classId={classId}
