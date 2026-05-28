@@ -44,7 +44,25 @@ const userSchema = z.object({
     .min(1, "Nama lengkap wajib diisi")
     .min(3, "Nama minimal 3 karakter"),
   password: z.string().optional(),
+  confirm_password: z.string().optional(),
   role: z.enum(["admin", "teacher"]),
+}).superRefine((data, ctx) => {
+  if (data.password && data.password.length > 0) {
+    if (data.password.length < 6) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password minimal 6 karakter",
+        path: ["password"],
+      });
+    }
+    if (data.password !== data.confirm_password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Konfirmasi password tidak cocok",
+        path: ["confirm_password"],
+      });
+    }
+  }
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -79,6 +97,7 @@ export default function UserForm({
       full_name: initialData?.full_name || "",
       role: initialData?.role || "teacher",
       password: "",
+      confirm_password: "",
     },
   });
 
@@ -90,6 +109,9 @@ export default function UserForm({
           full_name: data.full_name,
           email: data.email,
         };
+        if (data.password) {
+          payload.password = data.password;
+        }
         await updateMutation.mutateAsync({ id: initialData.id, data: payload });
         toast.success("Data pengguna berhasil diperbarui");
       } else {
@@ -187,15 +209,18 @@ export default function UserForm({
               )}
             </div>
 
-            {!isEditing && (
+          </div>
+          <div className="space-y-4 pt-4 border-t mt-4">
+            <h3 className="text-sm font-medium">{isEditing ? "Ubah Password" : "Password"}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{isEditing ? "Password Baru" : "Password"}</Label>
                 <Input
                   id="password"
                   type="password"
                   {...register("password")}
                   disabled={isPending}
-                  placeholder="Masukkan password"
+                  placeholder={isEditing ? "Kosongkan jika tidak ingin mengubah password" : "Masukkan password"}
                 />
                 {errors.password && (
                   <p className="text-xs text-red-500">
@@ -203,7 +228,22 @@ export default function UserForm({
                   </p>
                 )}
               </div>
-            )}
+              <div className="space-y-2">
+                <Label htmlFor="confirm_password">{isEditing ? "Konfirmasi Password Baru" : "Konfirmasi Password"}</Label>
+                <Input
+                  id="confirm_password"
+                  type="password"
+                  {...register("confirm_password")}
+                  disabled={isPending}
+                  placeholder={isEditing ? "Masukkan ulang password baru" : "Masukkan ulang password"}
+                />
+                {errors.confirm_password && (
+                  <p className="text-xs text-red-500">
+                    {errors.confirm_password.message}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2 border-t p-4">

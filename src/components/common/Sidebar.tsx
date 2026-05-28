@@ -67,12 +67,12 @@ const menuItems: MenuItem[] = [
     icon: FileBarChart,
     roles: ["admin", "teacher"],
   },
-  {
-    label: "Pengaturan",
-    path: "/settings",
-    icon: Settings,
-    roles: ["admin"],
-  },
+  // {
+  //   label: "Pengaturan",
+  //   path: "/settings",
+  //   icon: Settings,
+  //   roles: ["admin"],
+  // },
 ];
 
 export function AppSidebar() {

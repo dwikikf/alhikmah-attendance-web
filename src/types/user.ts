@@ -22,6 +22,7 @@ export interface CreateUserDto {
 export interface UpdateUserDto {
   full_name: string;
   email: string;
+  password?: string;
 }
 
 export interface UserQueryParams {

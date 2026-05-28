@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, ChevronDown } from "lucide-react";
+import {
+  Bell,
+  LogOut,
+  Settings as SettingsIcon,
+  User as UserIcon,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -40,11 +46,12 @@ export default function Navigation() {
         .slice(0, 2)
     : "?";
 
-  const roleLabel = user?.role === "admin"
-    ? "Administrator"
-    : user?.role === "teacher"
-      ? "Guru Wali Kelas"
-      : "Pengguna";
+  const roleLabel =
+    user?.role === "admin"
+      ? "Administrator"
+      : user?.role === "teacher"
+        ? "Guru Wali Kelas"
+        : "Pengguna";
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur-xl">
@@ -60,10 +67,10 @@ export default function Navigation() {
         <ThemeToggle />
 
         {/* Notification bell */}
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground mr-1">
+        {/* <Button variant="ghost" size="icon" className="relative text-muted-foreground mr-1">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
-        </Button>
+        </Button> */}
 
         {/* Profile dropdown */}
         <div className="relative" ref={profileRef}>
@@ -105,21 +112,19 @@ export default function Navigation() {
                 <p className="text-sm font-medium text-foreground">
                   {user?.name}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {user?.email}
-                </p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
 
-              <Link
+              {/* <Link
                 to="/settings"
                 onClick={() => setIsProfileOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
               >
                 <UserIcon className="h-4 w-4 text-muted-foreground" />
                 Profil Saya
-              </Link>
+              </Link> */}
               <Link
-                to="/settings"
+                to="/users"
                 onClick={() => setIsProfileOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
               >
