@@ -47,11 +47,11 @@ const authService = {
    * Refresh access token using refresh token
    */
   async refreshToken(): Promise<RefreshTokenResponse> {
-    const response = await api.post<RefreshTokenResponse>(
+    const response = await api.post<ApiResponse<any>>(
       API_ENDPOINTS.AUTH.REFRESH_TOKEN,
       {},
     );
-    return response.data;
+    return { accessToken: response.data.data.token };
   },
 
   /**

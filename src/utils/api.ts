@@ -171,9 +171,9 @@ async function refreshTokenSilently(): Promise<string | null> {
       },
     );
 
-    const { accessToken } = response.data as any; // Backend now only returns access_token
-    setTokens({ accessToken });
-    return accessToken;
+    const token = (response.data as any).data.token;
+    setTokens({ accessToken: token });
+    return token;
   } catch {
     return null;
   }
