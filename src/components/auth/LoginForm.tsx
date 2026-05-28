@@ -347,7 +347,7 @@ export default function LoginForm({
             </span>
           </label>
 
-          {onForgotPassword && (
+          {/* {onForgotPassword && (
             <button
               type="button"
               onClick={onForgotPassword}
@@ -357,7 +357,10 @@ export default function LoginForm({
             >
               Lupa password?
             </button>
-          )}
+          )} */}
+          <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+            Lupa password? Silakan hubungi admin.
+          </span>
         </div>
 
         {/* Submit Button */}
