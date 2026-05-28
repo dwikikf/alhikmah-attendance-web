@@ -3,17 +3,11 @@ import { format, subDays } from "date-fns";
 import { Users, UserCheck, UserX, GraduationCap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import StatsCard from "@/components/dashboard/StatsCard";
-import RecentActivity from "@/components/dashboard/RecentActivity";
-import AttendanceTrendChart from "@/components/dashboard/AttendanceTrendChart";
 import {
-  useTotalStudents,
   useTotalClasses,
   useTodayAttendanceSummary,
-  useRecentActivity,
-  useAttendanceTrend,
 } from "@/queries/useDashboardQuery";
-import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getCurrentAcademicYear } from "@/utils/date";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -21,26 +15,24 @@ export default function DashboardPage() {
 
   // ─── Fetch real data from backend ────────────────────────────────────────────
 
-  // 1. Total active students
-  const { data: totalStudents = 0, isLoading: isLoadingStudents } =
-    useTotalStudents();
+  const academicYear = getCurrentAcademicYear();
 
-  // 2. Total classes and class list
-  const { data: classesInfo, isLoading: isLoadingClasses } = useTotalClasses();
+  // 1. Total classes and class list filtered by academic year
+  const { data: classesInfo, isLoading: isLoadingClasses } = useTotalClasses(academicYear);
   const totalClasses = classesInfo?.total ?? 0;
   const classIds = useMemo(
     () => (classesInfo?.classes || []).map((c) => c.id),
     [classesInfo],
   );
 
-  // 3. Today's attendance aggregated across all classes
+  // 2. Total active students calculated from filtered classes
+  const totalStudents = useMemo(() => {
+    return classesInfo?.classes.reduce((sum, c) => sum + (c.student_count || 0), 0) || 0;
+  }, [classesInfo]);
+
+  // 3. Today's attendance aggregated across all filtered classes
   const { data: attendanceTotals, isLoading: isLoadingAttendance } =
     useTodayAttendanceSummary(classIds, today);
-
-  // 4. Recent Activity and Trend
-  const [trendDays, setTrendDays] = useState<number>(7);
-  const { data: recentActivity, isLoading: isLoadingRecent } = useRecentActivity(10);
-  const { data: trendData, isLoading: isLoadingTrend } = useAttendanceTrend(trendDays);
 
   // ─── Calculate stats from real data ──────────────────────────────────────────
 
@@ -54,7 +46,7 @@ export default function DashboardPage() {
   const hadirPercentage =
     totalRecorded > 0 ? Math.round((hadir / totalRecorded) * 100) : 0;
 
-  const isLoading = isLoadingStudents || isLoadingClasses || isLoadingAttendance;
+  const isLoading = isLoadingClasses || isLoadingAttendance;
 
 
   return (
@@ -74,14 +66,14 @@ export default function DashboardPage() {
           title="Total Siswa Aktif"
           value={totalStudents}
           icon={Users}
-          description="Terdaftar aktif"
-          isLoading={isLoadingStudents}
+          description={`Tahun Ajaran ${academicYear}`}
+          isLoading={isLoadingClasses}
         />
         <StatsCard
           title="Total Kelas"
           value={totalClasses}
           icon={GraduationCap}
-          description="Kelas terdaftar"
+          description={`Tahun Ajaran ${academicYear}`}
           isLoading={isLoadingClasses}
         />
         <StatsCard
@@ -108,19 +100,6 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <AttendanceTrendChart 
-            data={trendData || []} 
-            isLoading={isLoadingTrend} 
-            timeRange={trendDays}
-            onTimeRangeChange={setTrendDays}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <RecentActivity records={recentActivity || []} isLoading={isLoadingRecent} />
-        </div>
-      </div>
     </div>
   );
 }

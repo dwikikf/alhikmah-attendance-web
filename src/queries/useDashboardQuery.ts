@@ -26,44 +26,17 @@ export interface DashboardStats {
   }>;
 }
 
-/**
- * Fetch total student count from /students endpoint.
- * We only need pagination.totalItems, so limit=1.
- */
-export const useTotalStudents = () => {
-  return useQuery({
-    queryKey: ["dashboard", "totalStudents"],
-    queryFn: async () => {
-      try {
-        const res = await api.get<PaginatedResponse<Student>>("/students", {
-          params: { limit: 1, page: 1, is_active: true },
-        });
-        // The backend may return pagination info in different shapes
-        const pagination =
-          (res.data as any)?.pagination || (res.data as any)?.meta;
-        return (
-          pagination?.totalItems ??
-          pagination?.total ??
-          (res.data.data || []).length
-        );
-      } catch {
-        return 0;
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
 
 /**
- * Fetch total class count from /classes endpoint.
+ * Fetch total class count from /classes endpoint, filtered by academic_year.
  */
-export const useTotalClasses = () => {
+export const useTotalClasses = (academicYear: string) => {
   return useQuery({
-    queryKey: ["dashboard", "totalClasses"],
+    queryKey: ["dashboard", "totalClasses", academicYear],
     queryFn: async () => {
       try {
         const res = await api.get<PaginatedResponse<Class>>("/classes", {
-          params: { limit: 100, page: 1 },
+          params: { limit: 100, page: 1, academic_year: academicYear },
         });
         const data = res.data.data || [];
         const pagination =
@@ -84,36 +57,6 @@ export const useTotalClasses = () => {
   });
 };
 
-/**
- * Fetch today's attendance aggregated across all classes.
- * We iterate over each class and call /reports/daily for each.
- * If class list is empty or reports fail, we gracefully return zeros.
- */
-export const useRecentActivity = (limit: number = 10) => {
-  return useQuery({
-    queryKey: ["dashboard", "recentActivity", limit],
-    queryFn: async () => {
-      const res = await api.get<{ success: boolean; data: any[] }>(
-        "/dashboard/recent-activity",
-        { params: { limit } },
-      );
-      return res.data?.data || [];
-    },
-  });
-};
-
-export const useAttendanceTrend = (days: number = 7) => {
-  return useQuery({
-    queryKey: ["dashboard", "attendanceTrend", days],
-    queryFn: async () => {
-      const res = await api.get<{ success: boolean; data: any[] }>(
-        "/dashboard/attendance-trend",
-        { params: { days } },
-      );
-      return res.data?.data || [];
-    },
-  });
-};
 
 export const useTodayAttendanceSummary = (classIds: string[], date: string) => {
   return useQuery({
