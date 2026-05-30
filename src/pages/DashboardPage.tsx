@@ -51,14 +51,22 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Dashboard
-        </h1>
-        <p className="text-muted-foreground">
-          Selamat datang kembali, {user?.name}. Berikut ringkasan absensi hari
-          ini.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Selamat datang kembali, {user?.name}. Berikut ringkasan absensi hari
+            ini.
+          </p>
+        </div>
+        <button 
+          onClick={() => { throw new Error("Test Sentry Error from Web Dashboard!"); }}
+          className="rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90"
+        >
+          Test Sentry Error
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
