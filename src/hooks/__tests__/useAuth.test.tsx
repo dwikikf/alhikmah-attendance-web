@@ -42,5 +42,13 @@ describe('useAuth', () => {
     expect(result.current.user).toBeNull();
   });
 
-  // Note: More complex tests for login/logout would require mocking the authService
+  it('calls removeTokens on logout', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    
+    await act(async () => {
+      await result.current.logout();
+    });
+    
+    expect(authUtils.removeTokens).toHaveBeenCalled();
+  });
 });

@@ -7,6 +7,32 @@ afterEach(() => {
   cleanup();
 });
 
+// Mock AudioContext
+class MockAudioContext {
+  createOscillator() {
+    return {
+      type: 'sine',
+      frequency: { setValueAtTime: vi.fn() },
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn(),
+    };
+  }
+  createGain() {
+    return {
+      gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      connect: vi.fn(),
+    };
+  }
+  destination = {};
+  currentTime = 0;
+}
+
+Object.defineProperty(window, 'AudioContext', {
+  writable: true,
+  value: MockAudioContext,
+});
+
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
